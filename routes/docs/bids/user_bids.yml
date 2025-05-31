@@ -1,0 +1,42 @@
+tags:
+  - Bids
+summary: Get all bids placed by the currently logged-in user
+description: Retrieve all bids made by the authenticated user, including the auction title, sorted by bid time (most recent first).
+security:
+  - BearerAuth: []
+responses:
+  200:
+    description: Bids retrieved successfully
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          auction_id:
+            type: integer
+            example: 1
+          user_id:
+            type: integer
+            example: 2
+          bid_amount:
+            type: number
+            format: float
+            example: 50000.00
+          bid_time:
+            type: string
+            format: date-time
+            example: "2024-01-01T10:00:00"
+          auction_title:
+            type: string
+            example: "Antique Vase Auction"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"

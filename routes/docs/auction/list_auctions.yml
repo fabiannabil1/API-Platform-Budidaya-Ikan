@@ -1,0 +1,89 @@
+tags:
+  - Auctions
+summary: Mendapatkan daftar semua auction yang tersedia
+security:
+  - BearerAuth: []
+parameters:
+  - in: query
+    name: page
+    required: false
+    schema:
+      type: integer
+      example: 1
+      description: Halaman yang ingin diambil
+  - in: query
+    name: per_page
+    required: false
+    schema:
+      type: integer
+      example: 10
+      description: Jumlah item per halaman
+responses:
+  '200':
+    description: Daftar auction berhasil diambil
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            auctions:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                    description: ID dari auction
+                  title:
+                    type: string
+                    example: "Auction Barang Antik"
+                    description: Judul dari auction
+                  description:
+                    type: string
+                    example: "Barang antik dari abad ke-19"
+                    description: Deskripsi dari auction
+                  start_time:
+                    type: string
+                    format: date-time
+                    example: "2023-12-01T10:00:00"
+                    description: Waktu mulai auction
+                  end_time:
+                    type: string
+                    format: date-time
+                    example: "2023-12-10T18:00:00"
+                    description: Waktu berakhir auction
+                  starting_bid:
+                    type: number
+                    example: 1000000
+                    description: Penawaran awal untuk auction
+                  highest_bid:
+                    type: number
+                    example: 1500000
+                    description: Penawaran tertinggi saat ini
+                  status:
+                    type: string
+                    example: "ongoing"
+                    description: Status dari auction (ongoing, completed, etc.)
+            total:
+              type: integer
+              example: 100
+              description: Total jumlah auction
+            page:
+              type: integer
+              example: 1
+              description: Halaman saat ini
+            per_page:
+              type: integer
+              example: 10
+              description: Jumlah item per halaman
+  '404':
+    description: Tidak ada auction yang ditemukan
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Tidak ada auction yang tersedia"

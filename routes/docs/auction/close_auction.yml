@@ -1,0 +1,46 @@
+tags:
+  - Auctions
+summary: Menutup sebuah auction
+security:
+  - BearerAuth: []
+parameters:
+  - in: path
+    name: auction_id
+    required: true
+    schema:
+      type: integer
+    description: ID dari auction yang akan ditutup
+responses:
+  '200':
+    description: Auction berhasil ditutup
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Auction berhasil ditutup
+            auction_id:
+              type: integer
+              example: 123
+  '404':
+    description: Auction tidak ditemukan
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Auction tidak ditemukan
+  '403':
+    description: Akses ditolak
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Tidak diizinkan untuk menutup auction ini

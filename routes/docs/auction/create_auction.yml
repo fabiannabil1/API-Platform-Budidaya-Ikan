@@ -1,0 +1,73 @@
+tags:
+  - Auctions
+summary: Membuat auction baru
+security:
+  - BearerAuth: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - title
+          - description
+          - starting_price
+          - deadline
+          - location_id
+        properties:
+          title:
+            type: string
+            example: "Lelang Barang Antik"
+            description: Judul dari auction
+          description:
+            type: string
+            example: "Barang antik dari abad ke-18"
+            description: Deskripsi dari barang yang dilelang
+          starting_price:
+            type: number
+            example: 1000000
+            description: Harga awal untuk lelang
+          deadline:
+            type: string
+            format: date-time
+            example: "2023-12-31T23:59:59"
+            description: Batas waktu lelang
+          location_id:
+            type: integer
+            example: 1
+            description: ID lokasi tempat barang berada
+responses:
+  '201':
+    description: Auction berhasil dibuat
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Auction berhasil dibuat
+            auction_id:
+              type: integer
+              example: 123
+  '400':
+    description: Request body tidak valid
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Field title, description, starting_price, deadline, dan location_id wajib diisi
+  '403':
+    description: Akses ditolak
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Hanya user dengan role 'mitra' yang boleh membuat auction

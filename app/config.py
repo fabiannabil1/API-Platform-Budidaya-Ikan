@@ -1,11 +1,18 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+
+
+
 class Config:
-    JWT_SECRET_KEY = 'ini_jwtyangsangatpanjangdansusahdihack'
+    JWT_SECRET_KEY = os.getenv("JWT_KEY")
     SWAGGER = {
         "openapi": "3.0.1",
         "info": {
-            "title": "API Pelelangan Barang",
+            "title": "API Efishery",
             "version": "1.0.0",
-            "description": "API Pelelangan Barang"
+            "description": "API Clone untuk Efishery",
         },
         "components": {
             "securitySchemes": {

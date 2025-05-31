@@ -1,0 +1,62 @@
+tags:
+  - Auctions
+summary: Mengajukan penawaran pada auction
+security:
+  - BearerAuth: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - bid_amount
+        properties:
+          bid_amount:
+            type: number
+            example: 1500000
+            description: Jumlah penawaran yang diajukan
+responses:
+  '201':
+    description: Penawaran berhasil diajukan
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Penawaran berhasil diajukan
+            bid_amount:
+              type: number
+              example: 1500000
+  '400':
+    description: Request body tidak valid atau penawaran tidak memenuhi syarat
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Penawaran harus lebih besar dari harga saat ini (1000000)
+  '404':
+    description: Auction tidak ditemukan
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Auction tidak ditemukan
+  '403':
+    description: Akses ditolak
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Tidak diizinkan melakukan penawaran pada auction ini

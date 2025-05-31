@@ -1,24 +1,27 @@
 tags:
   - Auth
+summary: Login untuk mendapatkan token akses
 requestBody:
   required: true
-  description: Login credentials
   content:
     application/json:
       schema:
         type: object
         required:
-          - username
+          - phone
           - password
         properties:
-          username:
+          phone:
             type: string
+            example: 08123456789
+            description: Nomor HP pengguna
           password:
+            example: password123
             type: string
-
+            description: Password pengguna
 responses:
   '200':
-    description: Token akses berhasil dibuat
+    description: Login berhasil
     content:
       application/json:
         schema:
@@ -26,5 +29,24 @@ responses:
           properties:
             access_token:
               type: string
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
   '401':
-    description: Username atau password salah
+    description: Nomor HP atau password salah
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Nomor HP atau password salah
+  '400':
+    description: Request body tidak valid
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Phone dan password harus diisi

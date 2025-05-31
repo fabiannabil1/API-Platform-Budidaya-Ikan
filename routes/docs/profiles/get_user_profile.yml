@@ -1,0 +1,48 @@
+tags:
+  - Profiles
+summary: Get user profile by ID
+description: Retrieve a specific user's public profile by their ID
+parameters:
+  - name: user_id
+    in: path
+    type: integer
+    required: true
+    description: User ID
+    example: 1
+responses:
+  200:
+    description: Profile retrieved successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        role:
+          type: string
+          enum: [mitra, biasa, admin]
+          example: "mitra"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00"
+        address:
+          type: string
+          example: "Jl. Contoh No. 123"
+        profile_picture:
+          type: string
+          example: "https://example.com/profile.jpg"
+        bio:
+          type: string
+          example: "Petani modern yang fokus pada pertanian berkelanjutan"
+  404:
+    description: Profile not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Profil tidak ditemukan"

@@ -1,0 +1,57 @@
+tags:
+  - Bids
+summary: Get all bids for a specific auction
+description: Retrieve all bids placed on a specific auction, sorted by bid amount (highest to lowest) and bid time (earliest to latest for equal amounts).
+security:
+  - BearerAuth: []
+parameters:
+  - name: auction_id
+    in: path
+    type: integer
+    required: true
+    description: Auction ID
+    example: 1
+responses:
+  200:
+    description: Bids retrieved successfully
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          auction_id:
+            type: integer
+            example: 1
+          user_id:
+            type: integer
+            example: 2
+          bid_amount:
+            type: number
+            format: float
+            example: 75000.00
+          bid_time:
+            type: string
+            format: date-time
+            example: "2024-01-01T10:00:00"
+          bidder_name:
+            type: string
+            example: "John Doe"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"
+  404:
+    description: Auction not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Auction not found"

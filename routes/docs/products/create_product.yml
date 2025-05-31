@@ -1,0 +1,82 @@
+tags:
+  - Products
+summary: Create a new product
+description: Create a new product (requires authentication)
+security:
+  - BearerAuth: []
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - name
+        - price
+        - stock
+      properties:
+        name:
+          type: string
+          example: "Bibit Padi Unggul"
+        description:
+          type: string
+          example: "Bibit padi varietas unggul tahan hama"
+        price:
+          type: number
+          format: float
+          example: 50000.00
+        stock:
+          type: integer
+          example: 100
+        image_url:
+          type: string
+          example: "https://example.com/bibit-padi.jpg"
+responses:
+  201:
+    description: Product created successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Bibit Padi Unggul"
+        description:
+          type: string
+          example: "Bibit padi varietas unggul tahan hama"
+        price:
+          type: number
+          format: float
+          example: 50000.00
+        stock:
+          type: integer
+          example: 100
+        image_url:
+          type: string
+          example: "https://example.com/bibit-padi.jpg"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00"
+  400:
+    description: Invalid input
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Nama, harga, dan stok harus diisi"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"

@@ -1,0 +1,100 @@
+tags:
+  - Products
+summary: Update a product
+description: Update an existing product (only by the creator)
+security:
+  - BearerAuth: []
+parameters:
+  - name: id
+    in: path
+    type: integer
+    required: true
+    description: Product ID
+    example: 1
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Bibit Padi Unggul Premium"
+        description:
+          type: string
+          example: "Bibit padi varietas unggul tahan hama dan penyakit"
+        price:
+          type: number
+          format: float
+          example: 55000.00
+        stock:
+          type: integer
+          example: 150
+        image_url:
+          type: string
+          example: "https://example.com/bibit-padi-premium.jpg"
+responses:
+  200:
+    description: Product updated successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Bibit Padi Unggul Premium"
+        description:
+          type: string
+          example: "Bibit padi varietas unggul tahan hama dan penyakit"
+        price:
+          type: number
+          format: float
+          example: 55000.00
+        stock:
+          type: integer
+          example: 150
+        image_url:
+          type: string
+          example: "https://example.com/bibit-padi-premium.jpg"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T11:00:00"
+  400:
+    description: Invalid input
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Harga harus lebih dari 0"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"
+  403:
+    description: Forbidden
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Tidak memiliki izin untuk mengedit produk ini"
+  404:
+    description: Product not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Produk tidak ditemukan"

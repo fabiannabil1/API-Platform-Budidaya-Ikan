@@ -1,0 +1,80 @@
+tags:
+  - Orders
+summary: Get order details by ID
+description: Retrieve detailed information about a specific order including items
+security:
+  - BearerAuth: []
+parameters:
+  - name: id
+    in: path
+    type: integer
+    required: true
+    description: Order ID
+    example: 1
+responses:
+  200:
+    description: Order details retrieved successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        order_date:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00"
+        total_amount:
+          type: number
+          format: float
+          example: 150000.00
+        status:
+          type: string
+          enum: [pending, paid, shipped, cancelled]
+          example: "pending"
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              order_id:
+                type: integer
+                example: 1
+              product_id:
+                type: integer
+                example: 1
+              quantity:
+                type: integer
+                example: 2
+              price:
+                type: number
+                format: float
+                example: 50000.00
+              product_name:
+                type: string
+                example: "Bibit Padi Unggul"
+              image_url:
+                type: string
+                example: "https://example.com/bibit-padi.jpg"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"
+  404:
+    description: Order not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Pesanan tidak ditemukan"

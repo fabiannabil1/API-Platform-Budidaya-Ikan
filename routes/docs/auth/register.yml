@@ -1,23 +1,40 @@
 tags:
   - Auth
+summary: Registrasi pengguna baru
 requestBody:
   required: true
-  description: Data untuk registrasi
   content:
     application/json:
       schema:
         type: object
         required:
-          - username
+          - phone
           - password
+          - name
         properties:
-          username:
+          phone:
             type: string
-            description: Nama pengguna untuk registrasi
+            description: Nomor HP pengguna
+            example: 08123456789
           password:
             type: string
-            description: Kata sandi untuk registrasi
-
+            description: Password pengguna
+            example: password123
+          name:
+            type: string
+            description: Nama pengguna
+            example: John Doe
+          address:
+            type: string
+            description: Alamat pengguna (opsional)
+            example: Jl. Raya No. 1, Jakarta
+          role:
+            type: string
+            description: Peran pengguna (opsional)
+            example: mitra
+            enum:
+              - mitra
+              - biasa
 responses:
   '201':
     description: Registrasi berhasil
@@ -28,9 +45,9 @@ responses:
           properties:
             message:
               type: string
-              example: "Registrasi berhasil"
+              example: Registrasi berhasil
   '400':
-    description: Data tidak lengkap
+    description: Request body tidak valid
     content:
       application/json:
         schema:
@@ -38,9 +55,9 @@ responses:
           properties:
             error:
               type: string
-              example: "Data tidak lengkap"
+              example: Phone dan password harus diisi
   '409':
-    description: Username sudah digunakan
+    description: Nomor HP telah terdaftar
     content:
       application/json:
         schema:
@@ -48,4 +65,4 @@ responses:
           properties:
             error:
               type: string
-              example: "Username sudah digunakan"
+              example: Nomor HP telah terdaftar

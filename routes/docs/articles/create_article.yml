@@ -1,0 +1,67 @@
+tags:
+  - Articles
+summary: Create a new article
+description: Create a new article (requires authentication)
+security:
+  - BearerAuth: []
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+          example: "Tips Bertani Modern"
+        content:
+          type: string
+          example: "Artikel tentang tips bertani modern..."
+        image_url:
+          type: string
+          example: "https://example.com/image.jpg"
+responses:
+  201:
+    description: Article created successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Tips Bertani Modern"
+        content:
+          type: string
+          example: "Artikel tentang tips bertani modern..."
+        image_url:
+          type: string
+          example: "https://example.com/image.jpg"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00"
+  400:
+    description: Invalid input
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Judul dan konten harus diisi"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"

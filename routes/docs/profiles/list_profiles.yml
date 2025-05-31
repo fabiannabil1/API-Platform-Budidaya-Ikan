@@ -1,0 +1,42 @@
+tags:
+  - Profiles
+summary: List all user profiles
+description: Retrieve a list of all user profiles, optionally filtered by role
+parameters:
+  - name: role
+    in: query
+    type: string
+    required: false
+    description: Filter profiles by user role (mitra, biasa, admin)
+    enum: [mitra, biasa, admin]
+responses:
+  200:
+    description: List of profiles retrieved successfully
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          name:
+            type: string
+            example: "John Doe"
+          role:
+            type: string
+            enum: [mitra, biasa, admin]
+            example: "mitra"
+          created_at:
+            type: string
+            format: date-time
+            example: "2024-01-01T10:00:00"
+          address:
+            type: string
+            example: "Jl. Contoh No. 123"
+          profile_picture:
+            type: string
+            example: "https://example.com/profile.jpg"
+          bio:
+            type: string
+            example: "Petani modern yang fokus pada pertanian berkelanjutan"

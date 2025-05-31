@@ -1,0 +1,65 @@
+tags:
+  - Profiles
+summary: Update current user's profile
+description: Update the profile of the currently authenticated user
+security:
+  - BearerAuth: []
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "John Doe Updated"
+        address:
+          type: string
+          example: "Jl. Contoh Baru No. 456"
+        profile_picture:
+          type: string
+          example: "https://example.com/new-profile.jpg"
+        bio:
+          type: string
+          example: "Petani modern yang fokus pada pertanian berkelanjutan dan ramah lingkungan"
+responses:
+  200:
+    description: Profile updated successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe Updated"
+        phone:
+          type: string
+          example: "081234567890"
+        role:
+          type: string
+          enum: [mitra, biasa, admin]
+          example: "mitra"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00"
+        address:
+          type: string
+          example: "Jl. Contoh Baru No. 456"
+        profile_picture:
+          type: string
+          example: "https://example.com/new-profile.jpg"
+        bio:
+          type: string
+          example: "Petani modern yang fokus pada pertanian berkelanjutan dan ramah lingkungan"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"

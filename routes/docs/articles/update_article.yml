@@ -1,0 +1,78 @@
+tags:
+  - Articles
+summary: Update an article
+description: Update an existing article (only by the author)
+security:
+  - BearerAuth: []
+parameters:
+  - name: id
+    in: path
+    type: integer
+    required: true
+    description: Article ID
+    example: 1
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Tips Bertani Modern Updated"
+        content:
+          type: string
+          example: "Artikel tentang tips bertani modern yang telah diperbarui..."
+        image_url:
+          type: string
+          example: "https://example.com/new-image.jpg"
+responses:
+  200:
+    description: Article updated successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Tips Bertani Modern Updated"
+        content:
+          type: string
+          example: "Artikel tentang tips bertani modern yang telah diperbarui..."
+        image_url:
+          type: string
+          example: "https://example.com/new-image.jpg"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T11:00:00"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"
+  403:
+    description: Forbidden
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Tidak memiliki izin untuk mengedit artikel ini"
+  404:
+    description: Article not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Artikel tidak ditemukan"

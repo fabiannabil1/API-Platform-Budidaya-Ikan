@@ -1,0 +1,38 @@
+tags:
+  - Articles
+summary: Get all articles
+description: Retrieve a list of all articles with author information
+responses:
+  200:
+    description: List of articles retrieved successfully
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          title:
+            type: string
+            example: "Tips Bertani Modern"
+          content:
+            type: string
+            example: "Artikel tentang tips bertani modern..."
+          image_url:
+            type: string
+            example: "https://example.com/image.jpg"
+          created_at:
+            type: string
+            format: date-time
+            example: "2024-01-01T10:00:00"
+          updated_at:
+            type: string
+            format: date-time
+            example: "2024-01-01T10:00:00"
+          author_id:
+            type: integer
+            example: 1
+          author_name:
+            type: string
+            example: "John Doe"

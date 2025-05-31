@@ -1,0 +1,54 @@
+tags:
+  - Profiles
+summary: Get current user's profile
+description: Retrieve the profile of the currently authenticated user
+security:
+  - BearerAuth: []
+responses:
+  200:
+    description: Profile retrieved successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "John Doe"
+        phone:
+          type: string
+          example: "081234567890"
+        role:
+          type: string
+          enum: [mitra, biasa, admin]
+          example: "mitra"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00"
+        address:
+          type: string
+          example: "Jl. Contoh No. 123"
+        profile_picture:
+          type: string
+          example: "https://example.com/profile.jpg"
+        bio:
+          type: string
+          example: "Petani modern yang fokus pada pertanian berkelanjutan"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"
+  404:
+    description: Profile not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Profil tidak ditemukan"

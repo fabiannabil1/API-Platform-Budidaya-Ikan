@@ -1,0 +1,43 @@
+tags:
+  - Orders
+summary: Get current user's orders
+description: Retrieve a list of all orders made by the currently authenticated user
+security:
+  - BearerAuth: []
+responses:
+  200:
+    description: List of orders retrieved successfully
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          user_id:
+            type: integer
+            example: 1
+          order_date:
+            type: string
+            format: date-time
+            example: "2024-01-01T10:00:00"
+          total_amount:
+            type: number
+            format: float
+            example: 150000.00
+          status:
+            type: string
+            enum: [pending, paid, shipped, cancelled]
+            example: "pending"
+          total_items:
+            type: integer
+            example: 3
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"

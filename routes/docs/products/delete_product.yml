@@ -1,0 +1,46 @@
+tags:
+  - Products
+summary: Delete a product
+description: Delete an existing product (only by the creator)
+security:
+  - BearerAuth: []
+parameters:
+  - name: id
+    in: path
+    type: integer
+    required: true
+    description: Product ID
+    example: 1
+responses:
+  200:
+    description: Product deleted successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Produk berhasil dihapus"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"
+  403:
+    description: Forbidden
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Tidak memiliki izin untuk menghapus produk ini"
+  404:
+    description: Product not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Produk tidak ditemukan"

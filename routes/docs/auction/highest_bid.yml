@@ -1,0 +1,55 @@
+tags:
+  - Auctions
+summary: Mengambil penawaran tertinggi pada auction tertentu
+security:
+  - BearerAuth: []
+parameters:
+  - in: path
+    name: auction_id
+    required: true
+    schema:
+      type: integer
+    description: ID dari auction
+responses:
+  '200':
+    description: Penawaran tertinggi berhasil diambil
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+              description: ID dari bid
+            auction_id:
+              type: integer
+              example: 123
+              description: ID dari auction
+            user_id:
+              type: integer
+              example: 456
+              description: ID dari user yang melakukan bid
+            bid_amount:
+              type: number
+              example: 1500000
+              description: Jumlah penawaran
+            bid_time:
+              type: string
+              format: date-time
+              example: "2023-12-01T12:00:00"
+              description: Waktu penawaran dilakukan
+            bidder_name:
+              type: string
+              example: "John Doe"
+              description: Nama user yang melakukan bid
+  '404':
+    description: Auction tidak ditemukan atau belum ada penawaran
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Belum ada penawaran

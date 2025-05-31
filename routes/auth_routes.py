@@ -7,52 +7,63 @@ from flasgger import swag_from
 
 auth_bp = Blueprint('auth', __name__)
 
-
 @auth_bp.route("/api/login", methods=["POST"])
 @swag_from('docs/auth/login.yml')
 def login():
     data = request.json
-    nomor_hp = data.get("nomor_hp")
+    phone = data.get("phone")
     password = data.get("password")
 
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT id, password_hash FROM users WHERE nomor_hp=%s", (nomor_hp,))
+            cur.execute("SELECT id, password FROM users WHERE phone=%s", (phone,))
             user = cur.fetchone()
 
-    if not user:
-        return jsonify({"error": "nomor_hp atau password salah"}), 401
+    if not user or not check_password_hash(user["password"], password):
+        return jsonify({"error": "Nomor HP atau password salah"}), 401
 
-    if not user or not check_password_hash(user["password_hash"], password):
-        return jsonify({"error": "nomor_hp atau password salah"}), 401
-
-    # access_token = create_access_token(identity=user["id"])
     access_token = create_access_token(identity=str(user["id"]))
     return jsonify(access_token=access_token)
+
 
 @auth_bp.route("/api/register", methods=["POST"])
 @swag_from('docs/auth/register.yml')
 def register():
     data = request.json
-    print(data)
-    nomor_hp = data.get("nomor_hp")
+    phone = data.get("phone")
     password = data.get("password")
-    address = data.get("address")
     name = data.get("name")
+    address = data.get("address")  # untuk user_profiles
     role = data.get("role", "biasa")
 
-    if not nomor_hp or not password:
-        return jsonify({"error": "nomor_hp dan password harus diisi"}), 400
+    if role not in ["mitra", "biasa"]:
+        return jsonify({"error": "Role tidak valid"}), 400
+
+    if not phone or not password:
+        return jsonify({"error": "Phone dan password harus diisi"}), 400
 
     hashed_password = generate_password_hash(password)
 
     with get_connection() as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT id FROM users WHERE nomor_hp=%s", (nomor_hp,))
+            # Cek duplikasi
+            cur.execute("SELECT id FROM users WHERE phone=%s", (phone,))
             if cur.fetchone():
                 return jsonify({"error": "Nomor HP telah terdaftar"}), 409
 
-            cur.execute("INSERT INTO users (nomor_hp, password_hash,alamat,role,nama_lengkap) VALUES (%s, %s, %s, %s, %s)", (nomor_hp, hashed_password,address, role, name))
+            # Insert ke tabel users
+            cur.execute(
+                "INSERT INTO users (name, phone, password, role) VALUES (%s, %s, %s, %s) RETURNING id",
+                (name, phone, hashed_password, role)
+            )
+            user_id = cur.fetchone()[0]
+
+            # Insert ke user_profiles
+            cur.execute(
+                "INSERT INTO user_profiles (user_id, address) VALUES (%s, %s)",
+                (user_id, address)
+            )
+
             conn.commit()
 
     return jsonify({"message": "Registrasi berhasil"}), 201

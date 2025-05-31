@@ -1,0 +1,74 @@
+tags:
+  - Auctions
+summary: Memperbarui data auction
+security:
+  - BearerAuth: []
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          title:
+            type: string
+            example: "Lelang Barang Antik Terbaru"
+            description: Judul baru dari auction
+          description:
+            type: string
+            example: "Barang antik dari abad ke-19"
+            description: Deskripsi baru dari barang yang dilelang
+          starting_price:
+            type: number
+            example: 1500000
+            description: Harga awal baru untuk lelang
+          deadline:
+            type: string
+            format: date-time
+            example: "2024-01-15T23:59:59"
+            description: Batas waktu baru lelang
+          location_id:
+            type: integer
+            example: 2
+            description: ID lokasi baru tempat barang berada
+responses:
+  '200':
+    description: Auction berhasil diperbarui
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Auction berhasil diperbarui
+  '400':
+    description: Request body tidak valid
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Data yang diberikan tidak valid
+  '403':
+    description: Akses ditolak
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Tidak diizinkan mengubah auction ini
+  '404':
+    description: Auction tidak ditemukan
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: Auction tidak ditemukan

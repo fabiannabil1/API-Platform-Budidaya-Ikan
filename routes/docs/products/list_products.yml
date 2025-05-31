@@ -1,0 +1,45 @@
+tags:
+  - Products
+summary: Get all available products
+description: Retrieve a list of all products with stock greater than 0
+responses:
+  200:
+    description: List of products retrieved successfully
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            example: 1
+          name:
+            type: string
+            example: "Bibit Padi Unggul"
+          description:
+            type: string
+            example: "Bibit padi varietas unggul tahan hama"
+          price:
+            type: number
+            format: float
+            example: 50000.00
+          stock:
+            type: integer
+            example: 100
+          image_url:
+            type: string
+            example: "https://example.com/bibit-padi.jpg"
+          created_at:
+            type: string
+            format: date-time
+            example: "2024-01-01T10:00:00"
+          updated_at:
+            type: string
+            format: date-time
+            example: "2024-01-01T10:00:00"
+          created_by:
+            type: integer
+            example: 1
+          created_by_name:
+            type: string
+            example: "John Doe"

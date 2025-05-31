@@ -1,0 +1,75 @@
+tags:
+  - Products
+summary: Update product stock
+description: Update the stock quantity of a product (only by the creator)
+security:
+  - BearerAuth: []
+parameters:
+  - name: id
+    in: path
+    type: integer
+    required: true
+    description: Product ID
+    example: 1
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - stock
+      properties:
+        stock:
+          type: integer
+          example: 200
+responses:
+  200:
+    description: Stock updated successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Bibit Padi Unggul"
+        stock:
+          type: integer
+          example: 200
+        updated_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T11:00:00"
+  400:
+    description: Invalid input
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Stok harus diisi dan tidak boleh negatif"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"
+  403:
+    description: Forbidden
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Tidak memiliki izin untuk mengubah stok produk ini"
+  404:
+    description: Product not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Produk tidak ditemukan"

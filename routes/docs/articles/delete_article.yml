@@ -1,0 +1,46 @@
+tags:
+  - Articles
+summary: Delete an article
+description: Delete an existing article (only by the author)
+security:
+  - BearerAuth: []
+parameters:
+  - name: id
+    in: path
+    type: integer
+    required: true
+    description: Article ID
+    example: 1
+responses:
+  200:
+    description: Article deleted successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Artikel berhasil dihapus"
+  401:
+    description: Unauthorized
+    schema:
+      type: object
+      properties:
+        msg:
+          type: string
+          example: "Missing Authorization Header"
+  403:
+    description: Forbidden
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Tidak memiliki izin untuk menghapus artikel ini"
+  404:
+    description: Article not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Artikel tidak ditemukan"
