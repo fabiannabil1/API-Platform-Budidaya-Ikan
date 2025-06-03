@@ -11,7 +11,10 @@ auth_bp = Blueprint('auth', __name__)
 @swag_from('docs/auth/login.yml')
 def login():
     data = request.json
-    phone = data.get("phone")
+    print(data)
+    phone = data.get("nomor_hp") or data.get("phone")
+    if not phone:
+        phone = data.get("phone")  # untuk kompatibilitas dengan versi sebelumnya
     password = data.get("password")
 
     with get_connection() as conn:
@@ -30,7 +33,8 @@ def login():
 @swag_from('docs/auth/register.yml')
 def register():
     data = request.json
-    phone = data.get("phone")
+    # print(data)
+    phone = data.get("nomor_hp") or data.get("phone")
     password = data.get("password")
     name = data.get("name")
     address = data.get("address")  # untuk user_profiles

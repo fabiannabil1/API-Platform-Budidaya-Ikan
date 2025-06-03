@@ -5,4 +5,5 @@ psycopg2-binary
 flasgger
 flask_cors
 werkzeug
+flask_uploads
 

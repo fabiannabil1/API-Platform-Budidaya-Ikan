@@ -1,36 +1,67 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_from_directory, current_app, url_for
 from psycopg2.extras import RealDictCursor
 from models.db import get_connection
 from flasgger import swag_from
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from werkzeug.utils import secure_filename
 from datetime import datetime
+import os
 
 auction_bp = Blueprint('auction', __name__)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @auction_bp.route("/api/auctions", methods=["GET"])
 @jwt_required()
 @swag_from('docs/auction/list_auctions.yml')
 def list_auctions():
+    user_id = get_jwt_identity()
+    print(f"User ID: {user_id}")
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("""
                 SELECT a.*, l.name as location_name
                 FROM auctions a
                 LEFT JOIN locations l ON a.location_id = l.id
+                WHERE a.user_id != %s
                 ORDER BY a.created_at DESC
-            """)
+            """, (user_id,))
             auctions = cur.fetchall()
             return jsonify(auctions)
+
+
+@auction_bp.route('/uploads/auctions/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(current_app.config['AUCTION_FOLDER'], filename)
 
 @auction_bp.route("/api/auctions", methods=["POST"])
 @jwt_required()
 @swag_from('docs/auction/create_auction.yml')
 def create_auction():
     user_id = get_jwt_identity()
-    data = request.get_json()
+    data = request.form
     required_fields = ["title", "description", "starting_price", "deadline", "location_id"]
+    
+    file = request.files.get("image")
+
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Field wajib diisi"}), 400
+
+    filename = None
+    if file and allowed_file(file.filename):
+        filename = f"{datetime.utcnow().timestamp()}_{secure_filename(file.filename)}"
+        save_path = os.path.join(current_app.config['AUCTION_FOLDER'], filename)
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        file.save(save_path)
+    
+    image_url = None
+    if filename:
+        image_url = request.host_url.rstrip('/') + url_for('auction.uploaded_file', filename=filename)
+    else:
+        return jsonify({"error": "Gambar wajib diunggah"}), 400
 
     with get_connection() as conn:
         with conn.cursor() as cur:
@@ -40,8 +71,8 @@ def create_auction():
                 return jsonify({"error": "Hanya mitra yang bisa membuat auction"}), 403
 
             cur.execute("""
-                INSERT INTO auctions (user_id, title, description, starting_price, current_price, deadline, location_id, status, created_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, 'open', NOW())
+                INSERT INTO auctions (user_id, title, description, starting_price, current_price, deadline, location_id, status, created_at, image_url)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, 'open', NOW(), %s)
                 RETURNING id
             """, (
                 user_id,
@@ -50,7 +81,8 @@ def create_auction():
                 data["starting_price"],
                 data["starting_price"],
                 data["deadline"],
-                data["location_id"]
+                data["location_id"],
+                image_url
             ))
             auction_id = cur.fetchone()[0]
             conn.commit()

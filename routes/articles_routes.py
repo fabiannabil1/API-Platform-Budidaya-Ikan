@@ -1,10 +1,19 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_from_directory, current_app, url_for
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from psycopg2.extras import RealDictCursor
 from models.db import get_connection
 from flasgger import swag_from
+from werkzeug.utils import secure_filename
+import os
+from datetime import datetime
 
 articles_bp = Blueprint('articles', __name__)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @articles_bp.route("/api/articles", methods=["GET"])
 @swag_from('docs/articles/list_articles.yml')
@@ -38,19 +47,35 @@ def get_article(id):
                 
     return jsonify(article)
 
+
+@articles_bp.route('/uploads/photos/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)
+
 @articles_bp.route("/api/articles", methods=["POST"])
 @jwt_required()
 @swag_from('docs/articles/create_article.yml')
 def create_article():
-    data = request.json
-    title = data.get("title")
-    content = data.get("content")
-    image_url = data.get("image_url")
+    title = request.form.get("title")
+    content = request.form.get("content")
+    file = request.files.get("image")
     author_id = get_jwt_identity()
 
     if not title or not content:
         return jsonify({"error": "Judul dan konten harus diisi"}), 400
 
+    filename = None
+    if file and allowed_file(file.filename):
+        filename = f"{datetime.utcnow().timestamp()}_{secure_filename(file.filename)}"
+        save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        file.save(save_path)
+
+    image_url = None
+    if filename:
+        image_url = request.host_url.rstrip('/') + url_for('articles.uploaded_file', filename=filename)
+
+    # Simpan ke PostgreSQL
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("""
@@ -63,6 +88,7 @@ def create_article():
             conn.commit()
 
     return jsonify(new_article), 201
+
 
 @articles_bp.route("/api/articles/<int:id>", methods=["PUT"])
 @jwt_required()

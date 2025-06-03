@@ -6,37 +6,42 @@ security:
 requestBody:
   required: true
   content:
-    application/json:
-      schema:
-        type: object
-        required:
-          - title
-          - description
-          - starting_price
-          - deadline
-          - location_id
-        properties:
-          title:
-            type: string
-            example: "Lelang Barang Antik"
-            description: Judul dari auction
-          description:
-            type: string
-            example: "Barang antik dari abad ke-18"
-            description: Deskripsi dari barang yang dilelang
-          starting_price:
-            type: number
-            example: 1000000
-            description: Harga awal untuk lelang
-          deadline:
-            type: string
-            format: date-time
-            example: "2023-12-31T23:59:59"
-            description: Batas waktu lelang
-          location_id:
-            type: integer
-            example: 1
-            description: ID lokasi tempat barang berada
+      multipart/form-data:
+        schema:
+          type: object
+          required:
+            - title
+            - description
+            - starting_price
+            - deadline
+            - location_id
+            - image
+          properties:
+            title:
+              type: string
+              example: "Lelang Barang Antik"
+              description: Judul dari auction
+            description:
+              type: string
+              example: "Barang antik dari abad ke-18"
+              description: Deskripsi dari barang yang dilelang
+            starting_price:
+              type: number
+              example: 1000000
+              description: Harga awal untuk lelang
+            deadline:
+              type: string
+              format: date-time
+              example: "2023-12-31T23:59:59"
+              description: Batas waktu lelang
+            location_id:
+              type: integer
+              example: 1
+              description: ID lokasi tempat barang berada
+            image:
+              type: string
+              format: binary
+              description: Gambar untuk auction
 responses:
   '201':
     description: Auction berhasil dibuat
