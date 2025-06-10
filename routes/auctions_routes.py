@@ -32,6 +32,23 @@ def list_auctions():
             auctions = cur.fetchall()
             return jsonify(auctions)
 
+@auction_bp.route("/api/auctions/current", methods=["GET"])
+@jwt_required()
+@swag_from('docs/auction/get_current_user_item.yml')
+def get_current_user_item():
+    user_id = get_jwt_identity()
+    print(f"User ID: {user_id}")
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                SELECT a.*, l.name as location_name
+                FROM auctions a
+                LEFT JOIN locations l ON a.location_id = l.id
+                WHERE a.user_id = %s
+                ORDER BY a.created_at DESC
+            """, (user_id,))
+            auctions = cur.fetchall()
+            return jsonify(auctions)
 
 @auction_bp.route('/uploads/auctions/<filename>')
 def uploaded_file(filename):
@@ -94,13 +111,14 @@ def create_auction():
 def update_auction(auction_id):
     user_id = get_jwt_identity()
     data = request.get_json()
+    print(user_id)
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT user_id FROM auctions WHERE id = %s", (auction_id,))
             auction = cur.fetchone()
             if not auction:
                 return jsonify({"error": "Auction tidak ditemukan"}), 404
-            if auction[0] != user_id:
+            if auction[0] == user_id:
                 return jsonify({"error": "Tidak diizinkan mengubah"}), 403
 
             cur.execute("""
@@ -196,6 +214,8 @@ def highest_bid(auction_id):
 def place_bid(auction_id):
     user_id = get_jwt_identity()
     data = request.get_json()
+
+    print(user_id)
 
     if "bid_amount" not in data:
         return jsonify({"error": "bid_amount wajib diisi"}), 400
