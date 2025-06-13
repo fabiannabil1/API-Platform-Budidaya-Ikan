@@ -1,0 +1,50 @@
+tags:
+  - name: Chat
+summary: Get list of user chats
+description: Retrieve all chats belonging to the authenticated user
+security:
+  - BearerAuth: []
+responses:
+  200:
+    description: List of chats retrieved successfully
+    schema:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              chat_id:
+                type: integer
+                description: Unique identifier for the chat
+              partner_id:
+                type: integer
+                description: ID of the chat partner
+              partner_phone:
+                type: string
+                description: Phone number of chat partner
+              partner_name:
+                type: string
+                description: Name of chat partner
+              profile_picture:
+                type: string
+                description: URL of partner's profile picture
+                nullable: true
+              last_message:
+                type: string
+                description: Content of the last message
+                nullable: true
+              sent_at:
+                type: string
+                format: date-time
+                description: Timestamp of the last message
+                nullable: true
+  404:
+    description: User not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "User not found"

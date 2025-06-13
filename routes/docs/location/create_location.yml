@@ -1,0 +1,78 @@
+tags:
+  - Location
+summary: Create a new location
+description: Create a new location based on coordinates. The detailed address is automatically retrieved from LocationIQ.
+consumes:
+  - application/json
+produces:
+  - application/json
+parameters:
+  - in: body
+    name: body
+    required: true
+    schema:
+      type: object
+      required:
+        - name
+        - latitude
+        - longitude
+      properties:
+        name:
+          type: string
+          example: "Jember"
+        latitude:
+          type: number
+          format: float
+          example: -8.081674
+        longitude:
+          type: number
+          format: float
+          example: 113.746560
+responses:
+  201:
+    description: Lokasi berhasil disimpan
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Lokasi berhasil disimpan"
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            name:
+              type: string
+              example: "Jember"
+            latitude:
+              type: number
+              format: float
+              example: -8.081674
+            longitude:
+              type: number
+              format: float
+              example: 113.746560
+            detail_address:
+              type: string
+              example: "Jl. Mastrip No.164, Sumbersari, Jember"
+  400:
+    description: Bad request (missing or invalid fields)
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Semua field wajib diisi: name, latitude, longitude"
+  500:
+    description: Internal server error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Internal server error"
+        details:
+          type: string
+          example: "Error details"

@@ -1,0 +1,63 @@
+tags:
+  - Location
+summary: Get location by ID
+description: Retrieve details of a specific location by its ID
+parameters:
+  - name: location_id
+    in: path
+    required: true
+    type: integer
+    description: ID of the location to retrieve
+    example: 1
+responses:
+  200:
+    description: Successfully retrieved location
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Berhasil mengambil detail lokasi"
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            name:
+              type: string
+              example: "Jember"
+            latitude:
+              type: number
+              format: float
+              example: -8.081674
+            longitude:
+              type: number
+              format: float
+              example: 113.746560
+            detail_address:
+              type: string
+              example: "Jl. Mastrip No.164, Sumbersari, Jember"
+            created_at:
+              type: string
+              format: date-time
+              example: "2024-01-10T15:30:00Z"
+  404:
+    description: Location not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Lokasi tidak ditemukan"
+  500:
+    description: Internal server error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Internal server error"
+        details:
+          type: string
+          example: "Error details"

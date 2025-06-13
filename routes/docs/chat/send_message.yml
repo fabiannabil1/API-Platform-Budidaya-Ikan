@@ -1,0 +1,84 @@
+tags:
+  - name: Chat
+summary: Send a message to another user
+description: Send a message to another user using their phone number
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - receiver_phone
+          - message
+        properties:
+          receiver_phone:
+            type: string
+            description: Phone number of message recipient
+          message:
+            type: string
+            description: Content of the message to be sent
+responses:
+  '201':
+    description: Message sent successfully
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Pesan terkirim"
+            data:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: Message ID
+                chat_id:
+                  type: integer
+                  description: Chat ID
+                sender_id:
+                  type: integer
+                  description: ID of message sender
+                sender_phone:
+                  type: string
+                  description: Phone number of sender
+                message:
+                  type: string
+                  description: Content of the message
+                sent_at:
+                  type: string
+                  format: date-time
+                  description: Timestamp when message was sent
+  '400':
+    description: Bad request - missing fields or validation error
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Field tidak lengkap. Diperlukan receiver_phone dan message"
+  '404':
+    description: Sender or receiver not found
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Receiver not found"
+  '500':
+    description: Internal server error
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+security:
+  - BearerAuth: []

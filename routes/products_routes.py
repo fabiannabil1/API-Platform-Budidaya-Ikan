@@ -21,6 +21,9 @@ def get_products():
             products = cur.fetchall()
     return jsonify(products)
 
+
+
+
 @products_bp.route("/api/products/<int:id>", methods=["GET"])
 @swag_from('docs/products/get_product.yml')
 def get_product(id):

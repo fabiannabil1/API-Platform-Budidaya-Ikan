@@ -106,3 +106,26 @@ ALTER TABLE "orders" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 ALTER TABLE "order_items" ADD FOREIGN KEY ("order_id") REFERENCES "orders" ("id");
 
 ALTER TABLE "order_items" ADD FOREIGN KEY ("product_id") REFERENCES "products" ("id");
+
+
+-- Tabel chat (room antara 2 user)
+CREATE TABLE "chats" (
+  "id" SERIAL PRIMARY KEY,
+  "user1_id" INTEGER NOT NULL,
+  "user2_id" INTEGER NOT NULL,
+  "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_user1 FOREIGN KEY (user1_id) REFERENCES users(id),
+  CONSTRAINT fk_user2 FOREIGN KEY (user2_id) REFERENCES users(id),
+  CONSTRAINT unique_chat_pair UNIQUE (user1_id, user2_id)
+);
+
+-- Tabel message (pesan antar user dalam satu chat)
+CREATE TABLE "messages" (
+  "id" SERIAL PRIMARY KEY,
+  "chat_id" INTEGER NOT NULL,
+  "sender_id" INTEGER NOT NULL,
+  "message" TEXT NOT NULL,
+  "sent_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_chat FOREIGN KEY (chat_id) REFERENCES chats(id),
+  CONSTRAINT fk_sender FOREIGN KEY (sender_id) REFERENCES users(id)
+);

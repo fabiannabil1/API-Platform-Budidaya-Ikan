@@ -1,0 +1,53 @@
+tags:
+  - Location
+summary: Get all locations
+description: Retrieve a list of all locations with their coordinates and addresses
+responses:
+  200:
+    description: Successfully retrieved locations
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Berhasil mengambil data lokasi"
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: "Jember"
+              latitude:
+                type: number
+                format: float
+                example: -8.081674
+              longitude:
+                type: number
+                format: float
+                example: 113.746560
+              detail_address:
+                type: string
+                example: "Jl. Mastrip No.164, Sumbersari, Jember"
+              created_at:
+                type: string
+                format: date-time
+                example: "2024-01-10T15:30:00Z"
+        total:
+          type: integer
+          example: 1
+  500:
+    description: Internal server error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Internal server error"
+        details:
+          type: string
+          example: "Error details"

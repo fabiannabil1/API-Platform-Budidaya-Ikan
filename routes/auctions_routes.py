@@ -26,7 +26,7 @@ def list_auctions():
                 SELECT a.*, l.name as location_name
                 FROM auctions a
                 LEFT JOIN locations l ON a.location_id = l.id
-                WHERE a.user_id != %s
+                WHERE a.user_id != %s and a.is_deleted is null
                 ORDER BY a.created_at DESC
             """, (user_id,))
             auctions = cur.fetchall()
@@ -44,7 +44,7 @@ def get_current_user_item():
                 SELECT a.*, l.name as location_name
                 FROM auctions a
                 LEFT JOIN locations l ON a.location_id = l.id
-                WHERE a.user_id = %s
+                WHERE a.user_id = %s and is_deleted is null
                 ORDER BY a.created_at DESC
             """, (user_id,))
             auctions = cur.fetchall()
@@ -60,6 +60,7 @@ def uploaded_file(filename):
 def create_auction():
     user_id = get_jwt_identity()
     data = request.form
+    print(data)
     required_fields = ["title", "description", "starting_price", "deadline", "location_id"]
     
     file = request.files.get("image")
@@ -145,16 +146,21 @@ def update_auction(auction_id):
 @swag_from('docs/auction/delete_auction.yml')
 def delete_auction(auction_id):
     user_id = get_jwt_identity()
+    print('Deleting auction with ID:', auction_id)
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT user_id FROM auctions WHERE id = %s", (auction_id,))
             auction = cur.fetchone()
+            user_id = int(user_id)
+            user_id_auction = int(auction[0])
+            # print(user_id_auction == user_id)
+            print('ini auction idnya' , auction[0])
             if not auction:
                 return jsonify({"error": "Auction tidak ditemukan"}), 404
-            if auction[0] != user_id:
+            if user_id_auction != user_id:
                 return jsonify({"error": "Tidak diizinkan menghapus"}), 403
 
-            cur.execute("DELETE FROM auctions WHERE id = %s", (auction_id,))
+            cur.execute("UPDATE auctions SET is_deleted = TRUE WHERE id = %s", (auction_id,))
             conn.commit()
             return jsonify({"message": "Auction berhasil dihapus"})
 
