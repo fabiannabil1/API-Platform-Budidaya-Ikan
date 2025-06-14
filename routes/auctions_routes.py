@@ -65,7 +65,8 @@ def create_auction():
     
     file = request.files.get("image")
 
-    if not all(field in data for field in required_fields):
+    # Check all required fields are present and not empty
+    if not all(field in data and data[field] for field in required_fields):
         return jsonify({"error": "Field wajib diisi"}), 400
 
     filename = None
@@ -74,18 +75,16 @@ def create_auction():
         save_path = os.path.join(current_app.config['AUCTION_FOLDER'], filename)
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         file.save(save_path)
-    
-    image_url = None
-    if filename:
-        image_url = request.host_url.rstrip('/') + url_for('auction.uploaded_file', filename=filename)
     else:
         return jsonify({"error": "Gambar wajib diunggah"}), 400
+
+    image_url = request.host_url.rstrip('/') + url_for('auction.uploaded_file', filename=filename)
 
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT role FROM users WHERE id = %s", (user_id,))
             user = cur.fetchone()
-            if not user or user[0] != 'mitra':
+            if not user or (user[0] != 'mitra' and user[0] != 'admin'):
                 return jsonify({"error": "Hanya mitra yang bisa membuat auction"}), 403
 
             cur.execute("""
@@ -96,8 +95,8 @@ def create_auction():
                 user_id,
                 data["title"],
                 data["description"],
-                data["starting_price"],
-                data["starting_price"],
+                float(data["starting_price"]),
+                float(data["starting_price"]),
                 data["deadline"],
                 data["location_id"],
                 image_url

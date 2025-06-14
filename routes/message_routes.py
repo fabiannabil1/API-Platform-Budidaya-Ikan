@@ -103,12 +103,12 @@ def list_user_chats():
     return jsonify({"data": chats}), 200
 
 # 🔹 [GET] Ambil semua pesan dari chat dengan user tertentu berdasarkan phone
-@chat_bp.route("/<string:partner_phone>", methods=["GET"])
+@chat_bp.route("/<int:id>", methods=["GET"])
 @jwt_required()
 @swag_from('docs/chat/get_chat_messages.yml')
-def get_chat_messages(partner_phone):
+def get_chat_messages(id):
     my_id = get_user_id_from_jwt()  # ganti: ambil ID langsung dari JWT
-    partner_id = get_user_id_by_phone(partner_phone)
+    partner_id = id
     
     if not my_id or not partner_id:
         return jsonify({"error": "One or both users not found"}), 404
@@ -189,10 +189,13 @@ def send_message():
         return jsonify({"error": str(e)}), 500
 
 # 🔹 [GET] Search user by phone (untuk mencari kontak chat)
-@chat_bp.route("/search/<string:phone>", methods=["GET"])
+@chat_bp.route("/search/<int:id>", methods=["GET"])
 @jwt_required()
 @swag_from('docs/chat/search_user_by_phone.yml')
-def search_user_by_phone(phone):
+def search_user_by_phone(id):
+    phone = get_current_user_phone(id)
+    if not phone:
+        return jsonify({"error": "User not found"}), 404
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("""
