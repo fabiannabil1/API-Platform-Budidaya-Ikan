@@ -1,0 +1,79 @@
+tags:
+  - Fish Detection
+summary: Deteksi kondisi kesegaran ikan menggunakan YOLOv8
+security:
+  - BearerAuth: []
+requestBody:
+  required: true
+  content:
+    multipart/form-data:
+      schema:
+        type: object
+        required:
+          - image
+        properties:
+          image:
+            type: string
+            format: binary
+            description: Gambar ikan yang akan dideteksi
+responses:
+  '200':
+    description: Deteksi berhasil
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            detections:
+              type: array
+              items:
+                type: object
+                properties:
+                  class:
+                    type: string
+                    example: "fresh_fish"
+                  confidence:
+                    type: number
+                    format: float
+                    example: 0.95
+                  bbox:
+                    type: object
+                    properties:
+                      x1:
+                        type: integer
+                        example: 100
+                      y1:
+                        type: integer
+                        example: 200
+                      x2:
+                        type: integer
+                        example: 300
+                      y2:
+                        type: integer
+                        example: 400
+            total_detections:
+              type: integer
+              example: 1
+            annotated_image_base64:
+              type: string
+              description: Gambar hasil deteksi dalam format base64
+  '400':
+    description: Request tidak valid
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Tidak ada file gambar yang dikirim"
+  '500':
+    description: Error server
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Terjadi kesalahan pada server"

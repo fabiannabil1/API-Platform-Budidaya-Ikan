@@ -95,12 +95,14 @@ def create_article():
 @swag_from('docs/articles/update_article.yml')
 def update_article(id):
     current_user = get_jwt_identity()
-    data = request.json
+    title = request.form.get("title")
+    content = request.form.get("content") 
+    file = request.files.get("image")
     
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Check if article exists and user is the author
-            cur.execute("SELECT author_id FROM articles WHERE id = %s", (id,))
+            cur.execute("SELECT author_id, image_url FROM articles WHERE id = %s", (id,))
             article = cur.fetchone()
             
             if not article:
@@ -108,6 +110,15 @@ def update_article(id):
             
             if str(article['author_id']) != current_user:
                 return jsonify({"error": "Tidak memiliki izin untuk mengedit artikel ini"}), 403
+
+            # Handle file upload if provided
+            image_url = article['image_url']  # Keep existing image_url by default
+            if file and allowed_file(file.filename):
+                filename = f"{datetime.utcnow().timestamp()}_{secure_filename(file.filename)}"
+                save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                file.save(save_path)
+                image_url = request.host_url.rstrip('/') + url_for('articles.uploaded_file', filename=filename)
 
             # Update article
             cur.execute("""
@@ -118,7 +129,7 @@ def update_article(id):
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 RETURNING id, title, content, image_url, created_at, updated_at
-            """, (data.get("title"), data.get("content"), data.get("image_url"), id))
+            """, (title, content, image_url, id))
             
             updated_article = cur.fetchone()
             conn.commit()
