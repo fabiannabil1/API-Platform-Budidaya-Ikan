@@ -1,3 +1,4 @@
 .env
 /uploads/auctions/*
 uploads/photos/*
+venv
