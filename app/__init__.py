@@ -3,6 +3,7 @@ from .extensions import jwt, cors, swagger
 from flask import Flask
 from .config import Config
 import os
+from datetime import timedelta
 
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads', 'photos')  # misal folder upload
 AUCTION_FOLDER = os.path.join(os.getcwd(), 'uploads', 'auctions')  # misal folder auction
@@ -17,6 +18,8 @@ def create_app():
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     app.config['AUCTION_FOLDER'] = AUCTION_FOLDER
     app.config['PROFILE_FOLDER'] = PROFILE_FOLDER
+    # app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=1)# Nonaktifkan expired token
 
     cors.init_app(app)
     jwt.init_app(app)
