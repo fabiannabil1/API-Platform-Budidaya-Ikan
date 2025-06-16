@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Produk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-user-shield"></i> Admin Panel</h2>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="products.html" class="active"><i class="fas fa-box"></i> Produk</a></li>
+                    <li><a href="orders.html"><i class="fas fa-shopping-cart"></i> Pesanan</a></li>
+                    <li><a href="revenue.html"><i class="fas fa-chart-line"></i> Pendapatan</a></li>
+                    <li><a href="chat.html"><i class="fas fa-comments"></i> Chat</a></li>
+                    <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div class="d-flex justify-between align-center">
+                    <div>
+                        <h1>Manajemen Produk</h1>
+                        <p>Kelola semua produk dalam sistem</p>
+                    </div>
+                    <button class="btn btn-primary" id="addProductBtn">
+                        <i class="fas fa-plus"></i> Tambah Produk
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filters-grid">
+                    <div class="form-group mb-0">
+                        <input type="text" id="searchProduct" placeholder="Cari produk...">
+                    </div>
+                    <div class="form-group mb-0">
+                        <select id="stockFilter">
+                            <option value="">Semua Stok</option>
+                            <option value="in">Tersedia</option>
+                            <option value="out">Habis</option>
+                            <option value="low">Menipis (<5)</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-0">
+                        <select id="sortProducts">
+                            <option value="name_asc">Nama (A-Z)</option>
+                            <option value="name_desc">Nama (Z-A)</option>
+                            <option value="price_asc">Harga (Rendah-Tinggi)</option>
+                            <option value="price_desc">Harga (Tinggi-Rendah)</option>
+                            <option value="stock_asc">Stok (Rendah-Tinggi)</option>
+                            <option value="stock_desc">Stok (Tinggi-Rendah)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Table -->
+            <div class="card">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Gambar</th>
+                                <th>Nama Produk</th>
+                                <th>Harga</th>
+                                <th>Stok</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center">Memuat data produk...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div class="modal-header">
+                <h3 id="modalTitle">Tambah Produk</h3>
+            </div>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <div class="form-group">
+                    <label for="productName">Nama Produk</label>
+                    <input type="text" id="productName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Deskripsi</label>
+                    <textarea id="productDescription" name="description" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Harga</label>
+                    <input type="number" id="productPrice" name="price" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="productStock">Stok</label>
+                    <input type="number" id="productStock" name="stock" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="productImage">Gambar Produk</label>
+                    <div class="image-upload-container">
+                        <input type="file" id="productImage" name="image" accept="image/png,image/jpeg,image/gif">
+                        <div class="image-preview" id="imagePreview">
+                            <img id="previewImg" src="" alt="Preview" style="display: none; max-width: 200px;">
+                        </div>
+                        <p class="text-muted">Atau gunakan URL gambar:</p>
+                        <input type="url" id="productImageUrl" name="image_url" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="Modal.hide('productModal')">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <div class="modal-header">
+                <h3>Hapus Produk</h3>
+            </div>
+            <div class="modal-body">
+                <p>Apakah Anda yakin ingin menghapus produk ini?</p>
+                <p>Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="Modal.hide('deleteModal')">Batal</button>
+                <button class="btn btn-danger" id="confirmDelete">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content loading-content">
+            <div class="spinner"></div>
+            <p>Memproses...</p>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/products.js"></script>
+</body>
+</html>

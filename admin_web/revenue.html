@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Pendapatan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-user-shield"></i> Admin Panel</h2>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="products.html"><i class="fas fa-box"></i> Produk</a></li>
+                    <li><a href="orders.html"><i class="fas fa-shopping-cart"></i> Pesanan</a></li>
+                    <li><a href="revenue.html" class="active"><i class="fas fa-chart-line"></i> Pendapatan</a></li>
+                    <li><a href="chat.html"><i class="fas fa-comments"></i> Chat</a></li>
+                    <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Analisis Pendapatan</h1>
+                <p>Pantau dan analisis pendapatan bisnis Anda</p>
+            </div>
+
+            <!-- Revenue Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-card-value" id="totalRevenue">-</div>
+                    <div class="stat-card-label">Total Pendapatan</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="stat-card-value" id="todayRevenue">-</div>
+                    <div class="stat-card-label">Pendapatan Hari Ini</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div class="stat-card-value" id="monthRevenue">-</div>
+                    <div class="stat-card-label">Pendapatan Bulan Ini</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-card-value" id="avgOrderValue">-</div>
+                    <div class="stat-card-label">Rata-rata Nilai Pesanan</div>
+                </div>
+            </div>
+
+            <!-- Chart Filters -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Filter Grafik</h3>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <ul class="tabs-nav">
+                            <li><a href="#" class="tab-link active" data-period="daily">Harian</a></li>
+                            <li><a href="#" class="tab-link" data-period="monthly">Bulanan</a></li>
+                            <li><a href="#" class="tab-link" data-period="yearly">Tahunan</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="filters-grid mt-3">
+                        <div class="form-group mb-0">
+                            <label for="startDate">Tanggal Mulai</label>
+                            <input type="date" id="startDate" class="form-control">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="endDate">Tanggal Akhir</label>
+                            <input type="date" id="endDate" class="form-control">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="minAmount">Minimal Pendapatan</label>
+                            <input type="number" id="minAmount" placeholder="0" class="form-control">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-primary w-full" id="applyFilters">
+                                <i class="fas fa-filter"></i> Terapkan Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue Chart -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-between align-center">
+                        <h3>Grafik Pendapatan</h3>
+                        <div class="d-flex gap-2">
+                            <span class="badge badge-info" id="chartPeriod">Harian</span>
+                            <span class="badge badge-success" id="autoUpdate">Auto Update: ON</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Detail Pendapatan</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Periode</th>
+                                    <th>Jumlah Pesanan</th>
+                                    <th>Total Pendapatan</th>
+                                    <th>Rata-rata per Pesanan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="revenueTableBody">
+                                <tr>
+                                    <td colspan="4" class="text-center">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products by Revenue -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Produk Terlaris (Berdasarkan Pendapatan)</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Produk</th>
+                                    <th>Terjual</th>
+                                    <th>Total Pendapatan</th>
+                                    <th>Kontribusi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topProductsTableBody">
+                                <tr>
+                                    <td colspan="4" class="text-center">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content loading-content">
+            <div class="spinner"></div>
+            <p>Memuat data...</p>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/revenue.js"></script>
+</body>
+</html>

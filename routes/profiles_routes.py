@@ -156,21 +156,21 @@ def get_all_profiles():
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             if role_filter:
                 cur.execute("""
-                    SELECT u.id, u.name, u.role, u.created_at,
-                           up.address, up.profile_picture, up.bio
-                    FROM users u 
-                    LEFT JOIN user_profiles up ON u.id = up.user_id 
-                    WHERE u.role = %s
-                    ORDER BY u.created_at DESC
-                """, (role_filter,))
+                SELECT u.id, u.name, u.phone, u.role, u.created_at,
+                       up.address, up.profile_picture, up.bio
+                FROM users u 
+                LEFT JOIN user_profiles up ON u.id = up.user_id 
+                WHERE u.role = %s
+                ORDER BY u.created_at DESC
+            """, (role_filter,))
             else:
                 cur.execute("""
-                    SELECT u.id, u.name, u.role, u.created_at,
-                           up.address, up.profile_picture, up.bio
-                    FROM users u 
-                    LEFT JOIN user_profiles up ON u.id = up.user_id 
-                    ORDER BY u.created_at DESC
-                """)
+                SELECT u.id, u.name, u.phone, u.role, u.created_at,
+                       up.address, up.profile_picture, up.bio
+                FROM users u 
+                LEFT JOIN user_profiles up ON u.id = up.user_id 
+                ORDER BY u.created_at DESC
+            """)
             profiles = cur.fetchall()
                 
     return jsonify(profiles)

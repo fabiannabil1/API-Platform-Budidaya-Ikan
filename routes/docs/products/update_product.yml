@@ -1,9 +1,12 @@
 tags:
   - Products
 summary: Update a product
-description: Update an existing product (only by the creator)
+description: Update an existing product with optional image upload (only by the creator)
 security:
   - BearerAuth: []
+consumes:
+  - multipart/form-data
+  - application/json
 parameters:
   - name: id
     in: path
@@ -11,28 +14,42 @@ parameters:
     required: true
     description: Product ID
     example: 1
-  - name: body
-    in: body
-    required: true
-    schema:
-      type: object
-      properties:
-        name:
-          type: string
-          example: "Bibit Padi Unggul Premium"
-        description:
-          type: string
-          example: "Bibit padi varietas unggul tahan hama dan penyakit"
-        price:
-          type: number
-          format: float
-          example: 55000.00
-        stock:
-          type: integer
-          example: 150
-        image_url:
-          type: string
-          example: "https://example.com/bibit-padi-premium.jpg"
+  - name: name
+    in: formData
+    type: string
+    required: false
+    description: Product name
+    example: "Bibit Padi Unggul Premium"
+  - name: description
+    in: formData
+    type: string
+    required: false
+    description: Product description
+    example: "Bibit padi varietas unggul tahan hama dan penyakit"
+  - name: price
+    in: formData
+    type: number
+    format: float
+    required: false
+    description: Product price
+    example: 55000.00
+  - name: stock
+    in: formData
+    type: integer
+    required: false
+    description: Product stock quantity
+    example: 150
+  - name: image
+    in: formData
+    type: file
+    required: false
+    description: Product image file (png, jpg, jpeg, gif)
+  - name: image_url
+    in: formData
+    type: string
+    required: false
+    description: Product image URL (alternative to file upload)
+    example: "https://example.com/bibit-padi-premium.jpg"
 responses:
   200:
     description: Product updated successfully

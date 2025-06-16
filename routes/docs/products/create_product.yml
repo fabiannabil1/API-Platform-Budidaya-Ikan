@@ -1,36 +1,49 @@
 tags:
   - Products
 summary: Create a new product
-description: Create a new product (requires authentication)
+description: Create a new product with optional image upload (requires authentication)
 security:
   - BearerAuth: []
+consumes:
+  - multipart/form-data
+  - application/json
 parameters:
-  - name: body
-    in: body
+  - name: name
+    in: formData
+    type: string
     required: true
-    schema:
-      type: object
-      required:
-        - name
-        - price
-        - stock
-      properties:
-        name:
-          type: string
-          example: "Bibit Padi Unggul"
-        description:
-          type: string
-          example: "Bibit padi varietas unggul tahan hama"
-        price:
-          type: number
-          format: float
-          example: 50000.00
-        stock:
-          type: integer
-          example: 100
-        image_url:
-          type: string
-          example: "https://example.com/bibit-padi.jpg"
+    description: Product name
+    example: "Bibit Padi Unggul"
+  - name: description
+    in: formData
+    type: string
+    required: false
+    description: Product description
+    example: "Bibit padi varietas unggul tahan hama"
+  - name: price
+    in: formData
+    type: number
+    format: float
+    required: true
+    description: Product price
+    example: 50000.00
+  - name: stock
+    in: formData
+    type: integer
+    required: true
+    description: Product stock quantity
+    example: 100
+  - name: image
+    in: formData
+    type: file
+    required: false
+    description: Product image file (png, jpg, jpeg, gif)
+  - name: image_url
+    in: formData
+    type: string
+    required: false
+    description: Product image URL (alternative to file upload)
+    example: "https://example.com/bibit-padi.jpg"
 responses:
   201:
     description: Product created successfully

@@ -1,10 +1,22 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app, url_for, send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from psycopg2.extras import RealDictCursor
 from models.db import get_connection
 from flasgger import swag_from
+from werkzeug.utils import secure_filename
+from datetime import datetime
+import os
 
 products_bp = Blueprint('products', __name__)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@products_bp.route('/uploads/products/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(current_app.config['PRODUCT_FOLDER'], filename)
 
 @products_bp.route("/api/products", methods=["GET"])
 @swag_from('docs/products/list_products.yml')
@@ -15,7 +27,7 @@ def get_products():
                 SELECT p.*, u.name as created_by_name 
                 FROM products p 
                 LEFT JOIN users u ON p.created_by = u.id 
-                WHERE p.stock > 0
+                WHERE p.stock > 0 AND (p.is_deleted IS NULL OR p.is_deleted = FALSE)
                 ORDER BY p.created_at DESC
             """)
             products = cur.fetchall()
@@ -33,7 +45,7 @@ def get_product(id):
                 SELECT p.*, u.name as created_by_name 
                 FROM products p 
                 LEFT JOIN users u ON p.created_by = u.id 
-                WHERE p.id = %s
+                WHERE p.id = %s AND (p.is_deleted IS NULL OR p.is_deleted = FALSE)
             """, (id,))
             product = cur.fetchone()
             
@@ -46,12 +58,19 @@ def get_product(id):
 @jwt_required()
 @swag_from('docs/products/create_product.yml')
 def create_product():
-    data = request.json
+    if request.content_type.startswith('application/json'):
+        data = request.get_json()
+        file = None
+    elif request.content_type.startswith('multipart/form-data'):
+        data = request.form.to_dict()
+        file = request.files.get("image")
+    else:
+        return jsonify({"error": "Content-Type tidak didukung"}), 415
+
     name = data.get("name")
     description = data.get("description")
-    price = data.get("price")
-    stock = data.get("stock")
-    image_url = data.get("image_url")
+    price = float(data.get("price", 0))
+    stock = int(data.get("stock", 0))
     created_by = get_jwt_identity()
 
     if not name or not price or stock is None:
@@ -59,6 +78,20 @@ def create_product():
 
     if price <= 0 or stock < 0:
         return jsonify({"error": "Harga harus lebih dari 0 dan stok tidak boleh negatif"}), 400
+
+    # Handle image upload
+    image_url = None
+    if file:
+        if allowed_file(file.filename):
+            filename = f"{datetime.utcnow().timestamp()}_{secure_filename(file.filename)}"
+            save_path = os.path.join(current_app.config['PRODUCT_FOLDER'], filename)
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            file.save(save_path)
+            image_url = request.host_url.rstrip('/') + url_for('.uploaded_file', filename=filename)
+        else:
+            return jsonify({"error": "Tipe file tidak diperbolehkan"}), 400
+    else:
+        image_url = data.get("image_url")  # Fallback to image_url if no file uploaded
 
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -78,12 +111,20 @@ def create_product():
 @swag_from('docs/products/update_product.yml')
 def update_product(id):
     current_user = get_jwt_identity()
-    data = request.json
+    
+    if request.content_type.startswith('application/json'):
+        data = request.get_json()
+        file = None
+    elif request.content_type.startswith('multipart/form-data'):
+        data = request.form.to_dict()
+        file = request.files.get("image")
+    else:
+        return jsonify({"error": "Content-Type tidak didukung"}), 415
     
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Check if product exists and user is the creator
-            cur.execute("SELECT created_by FROM products WHERE id = %s", (id,))
+            cur.execute("SELECT created_by FROM products WHERE id = %s AND (is_deleted IS NULL OR is_deleted = FALSE)", (id,))
             product = cur.fetchone()
             
             if not product:
@@ -93,14 +134,28 @@ def update_product(id):
                 return jsonify({"error": "Tidak memiliki izin untuk mengedit produk ini"}), 403
 
             # Validate price and stock if provided
-            price = data.get("price")
-            stock = data.get("stock")
+            price = float(data.get("price", 0)) if data.get("price") else None
+            stock = int(data.get("stock", 0)) if data.get("stock") else None
             
             if price is not None and price <= 0:
                 return jsonify({"error": "Harga harus lebih dari 0"}), 400
             
             if stock is not None and stock < 0:
                 return jsonify({"error": "Stok tidak boleh negatif"}), 400
+
+            # Handle image upload
+            image_url = None
+            if file:
+                if allowed_file(file.filename):
+                    filename = f"{datetime.utcnow().timestamp()}_{secure_filename(file.filename)}"
+                    save_path = os.path.join(current_app.config['PRODUCT_FOLDER'], filename)
+                    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                    file.save(save_path)
+                    image_url = request.host_url.rstrip('/') + url_for('.uploaded_file', filename=filename)
+                else:
+                    return jsonify({"error": "Tipe file tidak diperbolehkan"}), 400
+            else:
+                image_url = data.get("image_url")  # Fallback to image_url if no file uploaded
 
             # Update product
             cur.execute("""
@@ -113,7 +168,7 @@ def update_product(id):
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = %s
                 RETURNING id, name, description, price, stock, image_url, created_at, updated_at
-            """, (data.get("name"), data.get("description"), price, stock, data.get("image_url"), id))
+            """, (data.get("name"), data.get("description"), price, stock, image_url, id))
             
             updated_product = cur.fetchone()
             conn.commit()
@@ -129,7 +184,7 @@ def delete_product(id):
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Check if product exists and user is the creator
-            cur.execute("SELECT created_by FROM products WHERE id = %s", (id,))
+            cur.execute("SELECT created_by FROM products WHERE id = %s AND (is_deleted IS NULL OR is_deleted = FALSE)", (id,))
             product = cur.fetchone()
             
             if not product:
@@ -138,8 +193,8 @@ def delete_product(id):
             if str(product['created_by']) != current_user:
                 return jsonify({"error": "Tidak memiliki izin untuk menghapus produk ini"}), 403
 
-            # Delete product
-            cur.execute("DELETE FROM products WHERE id = %s", (id,))
+            # Soft delete product by setting is_deleted to TRUE
+            cur.execute("UPDATE products SET is_deleted = TRUE, updated_at = CURRENT_TIMESTAMP WHERE id = %s", (id,))
             conn.commit()
 
     return jsonify({"message": "Produk berhasil dihapus"}), 200
@@ -158,7 +213,7 @@ def update_stock(id):
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             # Check if product exists and user is the creator
-            cur.execute("SELECT created_by FROM products WHERE id = %s", (id,))
+            cur.execute("SELECT created_by FROM products WHERE id = %s AND (is_deleted IS NULL OR is_deleted = FALSE)", (id,))
             product = cur.fetchone()
             
             if not product:

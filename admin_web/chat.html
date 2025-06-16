@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-user-shield"></i> Admin Panel</h2>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="products.html"><i class="fas fa-box"></i> Produk</a></li>
+                    <li><a href="orders.html"><i class="fas fa-shopping-cart"></i> Pesanan</a></li>
+                    <li><a href="revenue.html"><i class="fas fa-chart-line"></i> Pendapatan</a></li>
+                    <li><a href="chat.html" class="active"><i class="fas fa-comments"></i> Chat</a></li>
+                    <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <div class="d-flex justify-between align-center">
+                    <div>
+                        <h1>Chat Customer</h1>
+                        <p>Berkomunikasi dengan pelanggan secara real-time</p>
+                    </div>
+                    <div class="d-flex gap-2 align-center">
+                        <span class="badge badge-success" id="onlineStatus">
+                            <i class="fas fa-circle"></i> Online
+                        </span>
+                        <span class="badge badge-info" id="autoRefresh">
+                            Auto Refresh: 5s
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Filter Tabs -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="tabs">
+                        <ul class="tabs-nav">
+                            <li><a href="#" class="tab-link active" data-filter="all">Semua Pengguna</a></li>
+                            <li><a href="#" class="tab-link" data-filter="with-orders">Pengguna dengan Pesanan</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="filters-grid mt-3">
+                        <div class="form-group mb-0">
+                            <input type="text" id="searchUsers" placeholder="Cari pengguna..." class="form-control">
+                        </div>
+                        <div class="form-group mb-0">
+                            <select id="sortUsers" class="form-control">
+                                <option value="name_asc">Nama (A-Z)</option>
+                                <option value="name_desc">Nama (Z-A)</option>
+                                <option value="recent_chat">Chat Terbaru</option>
+                                <option value="most_orders">Paling Banyak Pesanan</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="chat-container">
+                <!-- Users List -->
+                <div class="chat-users">
+                    <div class="chat-users-header">
+                        <i class="fas fa-users"></i> Daftar Pengguna
+                        <span class="badge badge-primary" id="userCount">0</span>
+                    </div>
+                    <div class="chat-users-list" id="chatUsersList">
+                        <div class="text-center" style="padding: 20px; color: var(--text-light);">
+                            Memuat daftar pengguna...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="chat-messages">
+                    <div class="chat-messages-header" id="chatHeader">
+                        <div class="d-flex align-center gap-2">
+                            <i class="fas fa-user-circle" style="font-size: 24px; color: var(--primary-blue);"></i>
+                            <div>
+                                <div style="font-weight: 600;" id="selectedUserName">Pilih pengguna untuk memulai chat</div>
+                                <div style="font-size: 12px; color: var(--text-light);" id="selectedUserPhone"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-secondary" id="refreshChat" title="Refresh Chat">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="btn btn-sm btn-primary" id="clearChat" title="Clear Chat" style="display: none;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-messages-body" id="chatMessagesBody">
+                        <div class="text-center" style="padding: 40px; color: var(--text-light);">
+                            <i class="fas fa-comments" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                            <p>Pilih pengguna dari daftar untuk memulai percakapan</p>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input" id="chatInput" style="display: none;">
+                        <form class="chat-input-form" id="messageForm">
+                            <input type="text" id="messageText" placeholder="Ketik pesan..." required>
+                            <button type="submit">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Statistics -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Statistik Chat</h3>
+                </div>
+                <div class="card-body">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="stat-card-value" id="totalChats">-</div>
+                            <div class="stat-card-label">Total Percakapan</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-card-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="stat-card-value" id="totalMessages">-</div>
+                            <div class="stat-card-label">Total Pesan</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-card-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-card-value" id="todayMessages">-</div>
+                            <div class="stat-card-label">Pesan Hari Ini</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-card-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-card-value" id="activeChats">-</div>
+                            <div class="stat-card-label">Chat Aktif</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content loading-content">
+            <div class="spinner"></div>
+            <p>Memproses...</p>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>
