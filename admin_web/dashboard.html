@@ -22,6 +22,7 @@
                     <li><a href="orders.html"><i class="fas fa-shopping-cart"></i> Pesanan</a></li>
                     <li><a href="revenue.html"><i class="fas fa-chart-line"></i> Pendapatan</a></li>
                     <li><a href="chat.html"><i class="fas fa-comments"></i> Chat</a></li>
+                    <li><a href="role-requests.html"><i class="fas fa-user-cog"></i> Permintaan Role</a></li>
                     <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                 </ul>
             </nav>
@@ -66,6 +67,14 @@
                     </div>
                     <div class="stat-card-value" id="totalRevenue">-</div>
                     <div class="stat-card-label">Total Pendapatan</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <div class="stat-card-value" id="pendingRoleRequests">-</div>
+                    <div class="stat-card-label">Permintaan Role Pending</div>
                 </div>
             </div>
 
@@ -112,6 +121,9 @@
                         </a>
                         <a href="chat.html" class="btn btn-warning">
                             <i class="fas fa-comments"></i> Chat Customer
+                        </a>
+                        <a href="role-requests.html" class="btn btn-primary">
+                            <i class="fas fa-user-cog"></i> Kelola Role
                         </a>
                     </div>
                 </div>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Permintaan Perubahan Role - Admin Panel</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h3><i class="fas fa-fish"></i> Fish Market Admin</h3>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="products.html"><i class="fas fa-box"></i> Produk</a></li>
+                <li><a href="orders.html"><i class="fas fa-shopping-cart"></i> Pesanan</a></li>
+                <li><a href="revenue.html"><i class="fas fa-chart-line"></i> Pendapatan</a></li>
+                <li><a href="chat.html"><i class="fas fa-comments"></i> Chat</a></li>
+                <li class="active"><a href="role-requests.html"><i class="fas fa-user-cog"></i> Permintaan Role</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1><i class="fas fa-user-cog"></i> Kelola Permintaan Perubahan Role</h1>
+                <p>Kelola permintaan perubahan role dari user biasa ke mitra</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="pendingCount">0</h3>
+                        <p>Menunggu Persetujuan</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon approved">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="approvedCount">0</h3>
+                        <p>Disetujui</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon rejected">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="rejectedCount">0</h3>
+                        <p>Ditolak</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-group">
+                    <label for="statusFilter">Filter Status:</label>
+                    <select id="statusFilter" onchange="filterRequests()">
+                        <option value="">Semua Status</option>
+                        <option value="pending">Menunggu</option>
+                        <option value="approved">Disetujui</option>
+                        <option value="rejected">Ditolak</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="loadRoleRequests()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Role Requests Table -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama User</th>
+                            <th>No. HP</th>
+                            <th>Alasan</th>
+                            <th>Tanggal Pengajuan</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roleRequestsTable">
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Memuat data...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Approval Modal -->
+    <div id="approvalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-check-circle"></i> Setujui Permintaan</h3>
+                <span class="close" onclick="closeModal('approvalModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Apakah Anda yakin ingin menyetujui permintaan perubahan role ini?</p>
+                <div class="user-info">
+                    <p><strong>Nama:</strong> <span id="approveUserName"></span></p>
+                    <p><strong>Alasan:</strong> <span id="approveUserReason"></span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('approvalModal')">Batal</button>
+                <button class="btn btn-success" onclick="approveRequest()">
+                    <i class="fas fa-check"></i> Setujui
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejection Modal -->
+    <div id="rejectionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-times-circle"></i> Tolak Permintaan</h3>
+                <span class="close" onclick="closeModal('rejectionModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="user-info">
+                    <p><strong>Nama:</strong> <span id="rejectUserName"></span></p>
+                    <p><strong>Alasan Pengajuan:</strong> <span id="rejectUserReason"></span></p>
+                </div>
+                <div class="form-group">
+                    <label for="rejectionReason">Alasan Penolakan:</label>
+                    <textarea id="rejectionReason" rows="4" placeholder="Masukkan alasan penolakan..." required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('rejectionModal')">Batal</button>
+                <button class="btn btn-danger" onclick="rejectRequest()">
+                    <i class="fas fa-times"></i> Tolak
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/role-requests.js"></script>
+</body>
+</html>

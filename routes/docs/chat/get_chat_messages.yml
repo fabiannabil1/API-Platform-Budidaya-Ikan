@@ -1,47 +1,52 @@
 tags:
-  - name: Chat
+  - Chat
 summary: Get messages from a specific chat
-description: Retrieve all messages between current user and a partner user based on partner's phone number
+description: Retrieve all messages between current user and a partner user based on partner's user ID
 parameters:
   - in: path
-    name: partner_phone
+    name: id
     required: true
-    type: string
-    description: Phone number of the chat partner
+    schema:
+      type: integer
+    description: User ID of the chat partner
 security:
   - BearerAuth: []
 responses:
-  200:
+  '200':
     description: List of messages retrieved successfully
-    schema:
-      type: object
-      properties:
-        chat_id:
-          type: integer
-          description: Unique identifier for the chat
-        messages:
-          type: array
-          items:
-            type: object
-            properties:
-              sender_id:
-                type: integer
-                description: ID of message sender
-              sender_phone:
-                type: string
-                description: Phone number of message sender
-              message:
-                type: string
-                description: Content of the message
-              sent_at:
-                type: string
-                format: date-time
-                description: Timestamp when message was sent
-  404:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            chat_id:
+              type: integer
+              description: Unique identifier for the chat
+            messages:
+              type: array
+              items:
+                type: object
+                properties:
+                  sender_id:
+                    type: integer
+                    description: ID of message sender
+                  sender_phone:
+                    type: string
+                    description: Phone number of message sender
+                  message:
+                    type: string
+                    description: Content of the message
+                  sent_at:
+                    type: string
+                    format: date-time
+                    description: Timestamp when message was sent
+  '404':
     description: One or both users not found
-    schema:
-      type: object
-      properties:
-        error:
-          type: string
-          example: "One or both users not found"
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "One or both users not found"

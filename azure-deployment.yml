@@ -1,0 +1,91 @@
+# Azure App Service Deployment Configuration
+# This file configures the deployment of the Fish Market API with role change functionality
+
+name: Deploy Fish Market API to Azure
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  AZURE_WEBAPP_NAME: fish-market-api
+  AZURE_WEBAPP_PACKAGE_PATH: '.'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python version
+      uses: actions/setup-python@v3.0.0
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Create and start virtual environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+
+    - name: Install dependencies
+      run: |
+        source venv/bin/activate
+        pip install -r requirements.txt
+
+    - name: Run tests (if available)
+      run: |
+        source venv/bin/activate
+        # Add test commands here if you have tests
+        # python -m pytest
+
+    - name: Upload artifact for deployment jobs
+      uses: actions/upload-artifact@v3
+      with:
+        name: python-app
+        path: |
+          . 
+          !venv/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v3
+      with:
+        name: python-app
+        path: .
+
+    - name: 'Deploy to Azure Web App'
+      uses: azure/webapps-deploy@v2
+      id: deploy-to-webapp
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+# Environment Variables needed in Azure App Service:
+# - DB_HOST: PostgreSQL database host
+# - DB_NAME: Database name
+# - DB_USERNAME: Database username
+# - DB_PASSWORD: Database password
+# - DB_PORT: Database port (usually 5432)
+# - JWT_SECRET_KEY: Secret key for JWT tokens
+# - FLASK_ENV: production
+# - FLASK_APP: main.py
+
+# Database Setup Commands (run these in Azure Cloud Shell or locally):
+# 1. Create role_change_requests table:
+#    psql -h <DB_HOST> -U <DB_USERNAME> -d <DB_NAME> -f db_diagram/role_change_requests.sql
+#
+# 2. Create admin user (if not exists):
+#    INSERT INTO users (name, phone, password, role) 
+#    VALUES ('Admin', 'admin_phone', '<hashed_password>', 'admin');

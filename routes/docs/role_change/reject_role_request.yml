@@ -1,0 +1,56 @@
+Reject a role change request (admin only)
+---
+tags:
+  - Role Change
+security:
+  - Bearer: []
+parameters:
+  - in: path
+    name: request_id
+    type: integer
+    required: true
+    description: ID of the role change request
+  - in: body
+    name: body
+    required: true
+    schema:
+      type: object
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          description: Alasan penolakan
+responses:
+  200:
+    description: Request rejected successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Permintaan perubahan role ditolak
+  400:
+    description: Request already processed or invalid input
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Permintaan ini sudah diproses
+  403:
+    description: Unauthorized - Admin only
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Unauthorized
+  404:
+    description: Request not found
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Permintaan tidak ditemukan

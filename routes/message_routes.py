@@ -191,7 +191,7 @@ def send_message():
 # 🔹 [GET] Search user by phone (untuk mencari kontak chat)
 @chat_bp.route("/search/<int:id>", methods=["GET"])
 @jwt_required()
-@swag_from('docs/chat/search_user_by_phone.yml')
+@swag_from('docs/chat/search_user_by_id.yml')
 def search_user_by_phone(id):
     phone = get_current_user_phone(id)
     if not phone:

@@ -6,7 +6,6 @@ security:
   - BearerAuth: []
 consumes:
   - multipart/form-data
-  - application/json
 parameters:
   - name: name
     in: formData
@@ -37,12 +36,12 @@ parameters:
     in: formData
     type: file
     required: false
-    description: Product image file (png, jpg, jpeg, gif)
+    description: Upload file gambar produk (jpg, png, jpeg, gif)
   - name: image_url
     in: formData
     type: string
     required: false
-    description: Product image URL (alternative to file upload)
+    description: URL alternatif untuk gambar produk (jika tidak upload file)
     example: "https://example.com/bibit-padi.jpg"
 responses:
   201:

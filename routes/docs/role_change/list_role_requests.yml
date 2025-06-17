@@ -1,0 +1,58 @@
+List all role change requests (admin only)
+---
+tags:
+  - Role Change
+security:
+  - Bearer: []
+responses:
+  200:
+    description: List of role change requests
+    schema:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              user_id:
+                type: integer
+                example: 5
+              name:
+                type: string
+                example: John Doe
+              phone:
+                type: string
+                example: "081234567890"
+              reason:
+                type: string
+                example: Saya ingin menjadi mitra untuk menjual ikan
+              status:
+                type: string
+                enum: [pending, approved, rejected]
+                example: pending
+              requested_at:
+                type: string
+                format: date-time
+                example: "2024-01-15T10:30:00Z"
+              processed_at:
+                type: string
+                format: date-time
+                example: "2024-01-16T14:20:00Z"
+              processed_by:
+                type: integer
+                example: 1
+              rejection_reason:
+                type: string
+                example: Dokumen tidak lengkap
+  403:
+    description: Unauthorized - Admin only
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Unauthorized

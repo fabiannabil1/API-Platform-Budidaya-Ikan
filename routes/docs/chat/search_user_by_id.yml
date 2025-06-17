@@ -1,0 +1,44 @@
+tags:
+  - Chat
+summary: Search user by ID
+description: Find a user's details including their phone number, name, and profile picture using their user ID
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema:
+      type: integer
+    description: User ID to search for
+security:
+  - BearerAuth: []
+responses:
+  '200':
+    description: User found successfully
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            data:
+              type: object
+              properties:
+                phone:
+                  type: string
+                  description: User's phone number
+                name:
+                  type: string
+                  description: User's name
+                profile_picture:
+                  type: string
+                  description: URL of user's profile picture
+                  nullable: true
+  '404':
+    description: User not found
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "User not found"

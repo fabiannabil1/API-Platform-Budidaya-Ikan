@@ -1,5 +1,18 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = (() => {
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:5000/api';
+    }
+    // Always use the main API domain, not the admin subdomain
+    return 'https://efishery.acerkecil.my.id/api';
+})();
+
+
+// Debug: Log the API URL being used
+console.log('Current hostname:', window.location.hostname);
+console.log('Current origin:', window.location.origin);
+console.log('API_BASE_URL:', API_BASE_URL);
 
 // Authentication utilities
 class Auth {
@@ -36,8 +49,17 @@ class Auth {
 
 // API utilities
 class API {
+    static getBaseUrl() {
+        // Always ensure we use the correct API base URL
+        return window.API_BASE_URL || API_BASE_URL || 'https://efishery.acerkecil.my.id/api';
+    }
+
     static async request(endpoint, options = {}) {
         const token = Auth.getToken();
+        const baseUrl = this.getBaseUrl();
+        
+        console.log('Making API request to:', `${baseUrl}${endpoint}`);
+        
         const config = {
             headers: {
                 'Content-Type': 'application/json',
@@ -51,7 +73,7 @@ class API {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+            const response = await fetch(`${baseUrl}${endpoint}`, config);
             const data = await response.json();
 
             if (!response.ok) {
@@ -61,6 +83,7 @@ class API {
             return data;
         } catch (error) {
             console.error('API Error:', error);
+            console.error('Request URL:', `${baseUrl}${endpoint}`);
             throw error;
         }
     }
@@ -227,3 +250,4 @@ window.showError = showError;
 window.hideError = hideError;
 window.formatDate = formatDate;
 window.formatCurrency = formatCurrency;
+window.API_BASE_URL = API_BASE_URL;

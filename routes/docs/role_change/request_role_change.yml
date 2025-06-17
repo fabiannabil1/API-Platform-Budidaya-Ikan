@@ -1,0 +1,44 @@
+Request role change from regular user to partner
+---
+tags:
+  - Role Change
+security:
+  - Bearer: []
+parameters:
+  - in: body
+    name: body
+    required: true
+    schema:
+      type: object
+      properties:
+        reason:
+          type: string
+          description: Alasan pengajuan perubahan role (opsional)
+responses:
+  201:
+    description: Pengajuan berhasil dibuat
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Pengajuan perubahan role berhasil dibuat
+        request_id:
+          type: integer
+          example: 1
+  400:
+    description: Input tidak valid
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Hanya user biasa yang dapat mengajukan perubahan role
+  403:
+    description: Tidak diizinkan
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Hanya user biasa yang dapat mengajukan perubahan role

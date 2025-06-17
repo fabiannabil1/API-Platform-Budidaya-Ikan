@@ -43,11 +43,12 @@ class Dashboard {
             Modal.showLoading();
             
             // Load all dashboard data concurrently
-            const [products, orders, users, revenue] = await Promise.allSettled([
+            const [products, orders, users, revenue, roleRequests] = await Promise.allSettled([
                 this.loadProducts(),
                 this.loadOrders(),
                 this.loadUsers(),
-                this.calculateRevenue()
+                this.calculateRevenue(),
+                this.loadRoleRequests()
             ]);
 
             // Update stats
@@ -55,7 +56,8 @@ class Dashboard {
                 products: products.status === 'fulfilled' ? products.value : [],
                 orders: orders.status === 'fulfilled' ? orders.value : [],
                 users: users.status === 'fulfilled' ? users.value : [],
-                revenue: revenue.status === 'fulfilled' ? revenue.value : 0
+                revenue: revenue.status === 'fulfilled' ? revenue.value : 0,
+                roleRequests: roleRequests.status === 'fulfilled' ? roleRequests.value : []
             });
 
             // Load recent activity
@@ -108,6 +110,17 @@ class Dashboard {
         }
     }
 
+    async loadRoleRequests() {
+        try {
+            const response = await API.get('/role-change/requests');
+            // Handle the nested data structure from the API
+            return response.data || response || [];
+        } catch (error) {
+            console.error('Error loading role requests:', error);
+            return [];
+        }
+    }
+
     updateStats(data) {
         // Update product count
         const totalProducts = document.getElementById('totalProducts');
@@ -131,6 +144,13 @@ class Dashboard {
         const totalRevenue = document.getElementById('totalRevenue');
         if (totalRevenue) {
             totalRevenue.textContent = formatCurrency(data.revenue);
+        }
+
+        // Update pending role requests
+        const pendingRoleRequests = document.getElementById('pendingRoleRequests');
+        if (pendingRoleRequests) {
+            const pendingCount = data.roleRequests.filter(req => req.status === 'pending').length;
+            pendingRoleRequests.textContent = pendingCount.toLocaleString('id-ID');
         }
     }
 
