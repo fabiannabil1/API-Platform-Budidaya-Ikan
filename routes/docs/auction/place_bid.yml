@@ -1,8 +1,16 @@
 tags:
   - Auctions
-summary: Mengajukan penawaran pada auction
+summary: Place a bid on an auction
+description: Submit a bid amount for a specific auction (requires authentication)
 security:
   - BearerAuth: []
+parameters:
+  - name: auction_id
+    in: path
+    required: true
+    schema:
+      type: integer
+    description: ID of the auction to bid on
 requestBody:
   required: true
   content:
@@ -14,11 +22,12 @@ requestBody:
         properties:
           bid_amount:
             type: number
-            example: 1500000
-            description: Jumlah penawaran yang diajukan
+            format: float
+            description: Bid amount (must be higher than current price)
+            example: 150000.00
 responses:
   '201':
-    description: Penawaran berhasil diajukan
+    description: Bid placed successfully
     content:
       application/json:
         schema:
@@ -26,12 +35,13 @@ responses:
           properties:
             message:
               type: string
-              example: Penawaran berhasil diajukan
+              example: "Penawaran berhasil"
             bid_amount:
               type: number
-              example: 1500000
+              format: float
+              example: 150000.00
   '400':
-    description: Request body tidak valid atau penawaran tidak memenuhi syarat
+    description: Invalid bid amount or auction closed
     content:
       application/json:
         schema:
@@ -39,9 +49,19 @@ responses:
           properties:
             error:
               type: string
-              example: Penawaran harus lebih besar dari harga saat ini (1000000)
+              example: "Penawaran harus > harga saat ini (100000)"
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Missing Authorization Header"
   '404':
-    description: Auction tidak ditemukan
+    description: Auction not found
     content:
       application/json:
         schema:
@@ -49,14 +69,4 @@ responses:
           properties:
             error:
               type: string
-              example: Auction tidak ditemukan
-  '403':
-    description: Akses ditolak
-    content:
-      application/json:
-        schema:
-          type: object
-          properties:
-            error:
-              type: string
-              example: Tidak diizinkan melakukan penawaran pada auction ini
+              example: "Auction tidak ditemukan"

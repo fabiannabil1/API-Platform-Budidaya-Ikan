@@ -219,23 +219,30 @@ def highest_bid(auction_id):
 def place_bid(auction_id):
     user_id = get_jwt_identity()
     data = request.get_json()
-
-    print(user_id)
+    
+    # Debug prints
+    print("Request data:", data)
+    print("Request headers:", dict(request.headers))
+    print("User ID:", user_id)
+    print("Auction ID:", auction_id)
 
     if "bid_amount" not in data:
         return jsonify({"error": "bid_amount wajib diisi"}), 400
 
     bid_amount = data["bid_amount"]
+    print("Bid amount:", bid_amount)
 
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT current_price, status FROM auctions WHERE id = %s", (auction_id,))
             auction = cur.fetchone()
+            print("Auction data:", auction)
             if not auction:
                 return jsonify({"error": "Auction tidak ditemukan"}), 404
             if auction[1] != 'open':
                 return jsonify({"error": "Auction sudah ditutup"}), 400
             current_price = auction[0]
+            print("Current price:", current_price)
 
             if bid_amount <= current_price:
                 return jsonify({"error": f"Penawaran harus > harga saat ini ({current_price})"}), 400
