@@ -4,71 +4,79 @@ summary: Create a new order
 description: Create a new order with multiple items
 security:
   - BearerAuth: []
-parameters:
-  - name: body
-    in: body
-    required: true
-    schema:
-      type: object
-      required:
-        - items
-      properties:
-        items:
-          type: array
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        required:
+          - items
+        properties:
           items:
-            type: object
-            required:
-              - product_id
-              - quantity
-            properties:
-              product_id:
-                type: integer
-                example: 1
-              quantity:
-                type: integer
-                example: 2
+            type: array
+            items:
+              type: object
+              required:
+                - product_id
+                - quantity
+              properties:
+                product_id:
+                  type: integer
+                  example: 1
+                quantity:
+                  type: integer
+                  example: 2
 responses:
   201:
     description: Order created successfully
-    schema:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        order_date:
-          type: string
-          format: date-time
-          example: "2024-01-01T10:00:00"
-        total_amount:
-          type: number
-          format: float
-          example: 150000.00
-        status:
-          type: string
-          enum: [pending, paid, shipped, cancelled]
-          example: "pending"
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            order_date:
+              type: string
+              format: date-time
+              example: "2024-01-01T10:00:00"
+            total_amount:
+              type: number
+              format: float
+              example: 150000.00
+            status:
+              type: string
+              enum: [pending, paid, shipped, cancelled]
+              example: "pending"
   400:
     description: Invalid input
-    schema:
-      type: object
-      properties:
-        error:
-          type: string
-          example: "Items pesanan harus diisi"
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Items pesanan harus diisi"
   401:
     description: Unauthorized
-    schema:
-      type: object
-      properties:
-        msg:
-          type: string
-          example: "Missing Authorization Header"
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Missing Authorization Header"
   404:
     description: Product not found
-    schema:
-      type: object
-      properties:
-        error:
-          type: string
-          example: "Produk dengan ID 1 tidak ditemukan"
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Produk dengan ID 1 tidak ditemukan"

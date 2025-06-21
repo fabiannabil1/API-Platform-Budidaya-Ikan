@@ -172,9 +172,10 @@ def close_auction(auction_id):
         with conn.cursor() as cur:
             cur.execute("SELECT user_id, status FROM auctions WHERE id = %s", (auction_id,))
             auction = cur.fetchone()
+            print(auction[0])
             if not auction:
                 return jsonify({"error": "Auction tidak ditemukan"}), 404
-            if auction[0] != user_id:
+            if int(auction[0]) != int(user_id):
                 return jsonify({"error": "Tidak diizinkan menutup"}), 403
             if auction[1] == 'closed':
                 return jsonify({"message": "Auction sudah ditutup"})
