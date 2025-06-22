@@ -185,3 +185,38 @@ def update_order_status(id):
             conn.commit()
     
     return jsonify(updated_order)
+
+@orders_bp.route("/api/admin/orders", methods=["GET"])
+@jwt_required()
+@swag_from('docs/orders/admin_list_orders.yml')
+def admin_list_orders():
+    current_user = get_jwt_identity()
+
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            # Cek apakah user adalah admin
+            cur.execute("SELECT role FROM users WHERE id = %s", (current_user,))
+            user = cur.fetchone()
+            if not user or user['role'] != 'admin':
+                return jsonify({"error": "Akses ditolak. Hanya admin yang dapat mengakses."}), 403
+
+            # Ambil semua order + nama user + jumlah item
+            cur.execute("""
+                SELECT 
+                    o.id, 
+                    o.user_id, 
+                    u.name AS user_name, 
+                    o.order_date, 
+                    o.total_amount, 
+                    o.status,
+                    COUNT(oi.id) AS total_items
+                FROM orders o
+                JOIN users u ON o.user_id = u.id
+                LEFT JOIN order_items oi ON o.id = oi.order_id
+                GROUP BY o.id, u.name
+                ORDER BY o.order_date DESC
+            """)
+            orders = cur.fetchall()
+
+    return jsonify(orders)
+

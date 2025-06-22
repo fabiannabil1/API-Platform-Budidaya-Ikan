@@ -1,0 +1,60 @@
+tags:
+  - Orders
+summary: Get all orders (Admin only)
+description: Retrieve a list of all orders in the system (requires admin authentication)
+security:
+  - BearerAuth: []
+responses:
+  '200':
+    description: List of all orders
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              user_id:
+                type: integer
+                example: 2
+              full_name:
+                type: string
+                example: "John Doe"
+              order_date:
+                type: string
+                format: date-time
+                example: "2024-01-01T10:00:00"
+              total_amount:
+                type: number
+                format: float
+                example: 150000
+              status:
+                type: string
+                enum: [pending, paid, shipped, cancelled]
+                example: "pending"
+              total_items:
+                type: integer
+                example: 3
+  '401':
+    description: Unauthorized
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            msg:
+              type: string
+              example: "Missing Authorization Header"
+  '403':
+    description: Forbidden - Not an admin
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+              example: "Akses ditolak. Hanya admin yang dapat mengakses."

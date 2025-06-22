@@ -65,10 +65,8 @@ class Revenue {
     async loadRevenueData() {
         try {
             Modal.showLoading();
-            const orders = await API.get('/orders');
-            this.orders = orders.filter(order => 
-                order.status === 'completed' || order.status === 'delivered'
-            );
+            const orders = await API.get('/admin/orders');
+            this.orders = orders;
             
             this.updateStats();
             this.updateChart();
@@ -88,23 +86,33 @@ class Revenue {
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
         // Total revenue
-        const totalRevenue = this.orders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+        const totalRevenue = this.orders.reduce((sum, order) => {
+            const amount = parseFloat(order.total_amount) || 0;
+            return sum + amount;
+        }, 0);
         document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
 
         // Today's revenue
         const todayRevenue = this.orders
-            .filter(order => new Date(order.created_at) >= startOfToday)
-            .reduce((sum, order) => sum + (order.total_amount || 0), 0);
+            .filter(order => new Date(order.order_date) >= startOfToday)
+            .reduce((sum, order) => {
+                const amount = parseFloat(order.total_amount) || 0;
+                return sum + amount;
+            }, 0);
         document.getElementById('todayRevenue').textContent = formatCurrency(todayRevenue);
 
         // This month's revenue
         const monthRevenue = this.orders
-            .filter(order => new Date(order.created_at) >= startOfMonth)
-            .reduce((sum, order) => sum + (order.total_amount || 0), 0);
+            .filter(order => new Date(order.order_date) >= startOfMonth)
+            .reduce((sum, order) => {
+                const amount = parseFloat(order.total_amount) || 0;
+                return sum + amount;
+            }, 0);
         document.getElementById('monthRevenue').textContent = formatCurrency(monthRevenue);
 
         // Average order value
-        const avgOrderValue = this.orders.length > 0 ? totalRevenue / this.orders.length : 0;
+        const validOrders = this.orders.filter(order => order.total_amount !== null && order.total_amount !== undefined);
+        const avgOrderValue = validOrders.length > 0 ? totalRevenue / validOrders.length : 0;
         document.getElementById('avgOrderValue').textContent = formatCurrency(avgOrderValue);
     }
 
@@ -212,8 +220,8 @@ class Revenue {
 
         // Filter orders by date range
         const filteredOrders = this.orders.filter(order => {
-            const orderDate = new Date(order.created_at);
-            return orderDate >= startDate && orderDate <= endDate && (order.total_amount || 0) >= minAmount;
+            const orderDate = new Date(order.order_date);
+            return orderDate >= startDate && orderDate <= endDate && parseFloat(order.total_amount || 0) >= minAmount;
         });
 
         const labels = [];
@@ -222,7 +230,7 @@ class Revenue {
 
         // Group by period
         filteredOrders.forEach(order => {
-            const orderDate = new Date(order.created_at);
+            const orderDate = new Date(order.order_date);
             let key;
 
             switch (this.currentPeriod) {
@@ -292,14 +300,14 @@ class Revenue {
         const startDate = new Date(document.getElementById('startDate').value);
         const endDate = new Date(document.getElementById('endDate').value);
         const filteredOrders = this.orders.filter(order => {
-            const orderDate = new Date(order.created_at);
+            const orderDate = new Date(order.order_date);
             return orderDate >= startDate && orderDate <= endDate;
         });
 
         // Group orders by period for counting
         const periodOrderCounts = new Map();
         filteredOrders.forEach(order => {
-            const orderDate = new Date(order.created_at);
+            const orderDate = new Date(order.order_date);
             let key;
 
             switch (this.currentPeriod) {
@@ -340,22 +348,20 @@ class Revenue {
         const productRevenue = new Map();
         const productSales = new Map();
 
-        // Calculate revenue per product
+        // Calculate revenue per order
         this.orders.forEach(order => {
-            if (order.items) {
-                order.items.forEach(item => {
-                    const productName = item.product_name;
-                    const revenue = (item.price || 0) * (item.quantity || 0);
-                    const quantity = item.quantity || 0;
+            if (order && order.id) {
+                const orderName = `Order #${order.id}`;
+                const revenue = parseFloat(order.total_amount) || 0;
+                const quantity = parseInt(order.total_items) || 0;
 
-                    if (!productRevenue.has(productName)) {
-                        productRevenue.set(productName, 0);
-                        productSales.set(productName, 0);
-                    }
+                if (!productRevenue.has(orderName)) {
+                    productRevenue.set(orderName, 0);
+                    productSales.set(orderName, 0);
+                }
 
-                    productRevenue.set(productName, productRevenue.get(productName) + revenue);
-                    productSales.set(productName, productSales.get(productName) + quantity);
-                });
+                productRevenue.set(orderName, productRevenue.get(orderName) + revenue);
+                productSales.set(orderName, productSales.get(orderName) + quantity);
             }
         });
 
@@ -364,7 +370,7 @@ class Revenue {
             .sort((a, b) => b[1] - a[1])
             .slice(0, 10);
 
-        const totalRevenue = Array.from(productRevenue.values()).reduce((sum, rev) => sum + rev, 0);
+        const totalRevenue = Array.from(productRevenue.values()).reduce((sum, rev) => sum + (rev || 0), 0);
         const tbody = document.getElementById('topProductsTableBody');
 
         if (!tbody) return;

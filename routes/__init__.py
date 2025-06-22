@@ -10,6 +10,7 @@ from .location_routes import location_bp
 from .message_routes import chat_bp
 from .fish_freshness import fish_detection_bp
 from .change_role_routes import change_role_bp
+from .admin_static_routes import admin_static_bp
 
 def register_routes(app):
     app.register_blueprint(auth_bp)
@@ -24,3 +25,4 @@ def register_routes(app):
     app.register_blueprint(chat_bp)
     app.register_blueprint(fish_detection_bp)
     app.register_blueprint(change_role_bp)
+    app.register_blueprint(admin_static_bp)

@@ -71,7 +71,7 @@ class Orders {
     async loadOrders() {
         try {
             Modal.showLoading();
-            const orders = await API.get('/orders');
+            const orders = await API.get('/admin/orders');
             this.orders = orders;
             this.updateStats();
             this.renderOrders();
@@ -91,10 +91,12 @@ class Orders {
             totalOrders.textContent = this.orders.length.toLocaleString('id-ID');
         }
 
-        // Pending orders
+        // Pending orders (including null status as pending)
         const pendingOrders = document.getElementById('pendingOrders');
         if (pendingOrders) {
-            const pending = this.orders.filter(order => order.status === 'pending').length;
+            const pending = this.orders.filter(order => 
+                order.status === 'pending' || order.status === null || order.status === 'null'
+            ).length;
             pendingOrders.textContent = pending.toLocaleString('id-ID');
         }
 
@@ -135,7 +137,7 @@ class Orders {
                     <div style="font-weight: 500;">${order.user_name || 'User'}</div>
                     <div style="font-size: 12px; color: var(--text-light);">${order.user_phone || ''}</div>
                 </td>
-                <td>${formatDate(order.created_at)}</td>
+                <td>${formatDate(order.order_date)}</td>
                 <td>${formatCurrency(order.total_amount || 0)}</td>
                 <td>
                     <span class="badge ${this.getStatusBadgeClass(order.status)}">
@@ -179,12 +181,13 @@ class Orders {
                 
                 const customer = customerMap.get(customerId);
                 customer.orderCount++;
-                customer.totalAmount += order.total_amount || 0;
+                const orderAmount = parseFloat(order.total_amount) || 0;
+                customer.totalAmount += orderAmount;
                 
                 // Update last order info
-                if (!customer.lastOrderDate || new Date(order.created_at) > new Date(customer.lastOrderDate)) {
+                if (!customer.lastOrderDate || new Date(order.order_date) > new Date(customer.lastOrderDate)) {
                     customer.lastStatus = order.status;
-                    customer.lastOrderDate = order.created_at;
+                    customer.lastOrderDate = order.order_date;
                 }
             });
 
@@ -231,7 +234,7 @@ class Orders {
     async showOrderDetail(orderId) {
         try {
             Modal.showLoading();
-            const order = await API.get(`/orders/${orderId}`);
+            const order = await API.get(`/admin/orders/${orderId}`);
             this.currentOrderId = orderId;
             
             const orderDetails = document.getElementById('orderDetails');
@@ -242,7 +245,7 @@ class Orders {
                             <div class="col">
                                 <h4>Informasi Pesanan</h4>
                                 <p><strong>ID Pesanan:</strong> #${order.id}</p>
-                                <p><strong>Tanggal:</strong> ${formatDate(order.created_at)}</p>
+                                <p><strong>Tanggal:</strong> ${formatDate(order.order_date)}</p>
                                 <p><strong>Status:</strong> 
                                     <span class="badge ${this.getStatusBadgeClass(order.status)}">
                                         ${this.getStatusText(order.status)}
@@ -359,7 +362,7 @@ class Orders {
         if (dateFilter) {
             const filterDate = new Date(dateFilter);
             filteredOrders = filteredOrders.filter(order => {
-                const orderDate = new Date(order.created_at);
+                const orderDate = new Date(order.order_date);
                 return orderDate.toDateString() === filterDate.toDateString();
             });
         }
@@ -367,10 +370,10 @@ class Orders {
         // Apply sorting
         switch (sortBy) {
             case 'date_asc':
-                filteredOrders.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                filteredOrders.sort((a, b) => new Date(a.order_date) - new Date(b.order_date));
                 break;
             case 'date_desc':
-                filteredOrders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                filteredOrders.sort((a, b) => new Date(b.order_date) - new Date(a.order_date));
                 break;
             case 'amount_asc':
                 filteredOrders.sort((a, b) => (a.total_amount || 0) - (b.total_amount || 0));
@@ -396,7 +399,13 @@ class Orders {
             'cancelled': 'badge-danger',
             'completed': 'badge-success'
         };
-        return statusClasses[status] || 'badge-secondary';
+        
+        // Handle null, undefined, or 'null' string as pending
+        if (status === null || status === undefined || status === 'null' || status === '') {
+            return 'badge-warning';
+        }
+        
+        return statusClasses[status] || 'badge-warning';
     }
 
     getStatusText(status) {
@@ -408,7 +417,13 @@ class Orders {
             'cancelled': 'Dibatalkan',
             'completed': 'Selesai'
         };
-        return statusTexts[status] || status;
+        
+        // Handle null, undefined, or 'null' string as pending
+        if (status === null || status === undefined || status === 'null' || status === '') {
+            return 'Menunggu';
+        }
+        
+        return statusTexts[status] || 'Menunggu';
     }
 
     showError(message) {
