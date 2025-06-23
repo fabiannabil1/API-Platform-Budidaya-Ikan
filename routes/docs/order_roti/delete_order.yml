@@ -1,0 +1,25 @@
+---
+tags:
+  - Order Roti
+summary: Delete order roti
+security:
+  - Bearer: []
+parameters:
+  - name: id
+    in: path
+    type: integer
+    required: true
+    description: Order roti ID
+responses:
+  200:
+    description: Order roti deleted successfully
+    schema:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Order roti berhasil dihapus"
+  404:
+    description: Order roti not found
+  401:
+    description: Unauthorized access

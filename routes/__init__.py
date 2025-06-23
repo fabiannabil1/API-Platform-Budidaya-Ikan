@@ -1,4 +1,5 @@
 from .auth_routes import auth_bp
+from .order_roti_routes import order_roti_bp
 from .auctions_routes import auction_bp
 from .bids_routes import bids_bp
 from .welcome import welcome_bp
@@ -14,6 +15,7 @@ from .admin_static_routes import admin_static_bp
 
 def register_routes(app):
     app.register_blueprint(auth_bp)
+    app.register_blueprint(order_roti_bp)
     app.register_blueprint(auction_bp)
     app.register_blueprint(bids_bp)
     app.register_blueprint(welcome_bp)

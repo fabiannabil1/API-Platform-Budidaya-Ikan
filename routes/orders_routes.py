@@ -11,12 +11,12 @@ orders_bp = Blueprint('orders', __name__)
 @swag_from('docs/orders/list_orders.yml')
 def get_my_orders():
     current_user = get_jwt_identity()
-    
+
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            # Ambil semua orders milik user
             cur.execute("""
-                SELECT o.*, 
-                       COUNT(oi.id) as total_items
+                SELECT o.*, COUNT(oi.id) AS total_items
                 FROM orders o 
                 LEFT JOIN order_items oi ON o.id = oi.order_id
                 WHERE o.user_id = %s
@@ -24,7 +24,31 @@ def get_my_orders():
                 ORDER BY o.order_date DESC
             """, (current_user,))
             orders = cur.fetchall()
-    
+
+            # Untuk setiap order, ambil item + produk
+            for order in orders:
+                cur.execute("""
+                    SELECT 
+                        oi.product_id, 
+                        oi.quantity, 
+                        oi.price, 
+                        p.name AS product_name, 
+                        p.image_url
+                    FROM order_items oi
+                    JOIN products p ON oi.product_id = p.id
+                    WHERE oi.order_id = %s
+                """, (order['id'],))
+                items = cur.fetchall()
+
+                # Gabungkan product info dalam item
+                for item in items:
+                    item['product'] = {
+                        'name': item.pop('product_name'),
+                        'image_url': item.pop('image_url')
+                    }
+
+                order['items'] = items
+
     return jsonify(orders)
 
 @orders_bp.route("/api/orders/<int:id>", methods=["GET"])
@@ -185,38 +209,3 @@ def update_order_status(id):
             conn.commit()
     
     return jsonify(updated_order)
-
-@orders_bp.route("/api/admin/orders", methods=["GET"])
-@jwt_required()
-@swag_from('docs/orders/admin_list_orders.yml')
-def admin_list_orders():
-    current_user = get_jwt_identity()
-
-    with get_connection() as conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # Cek apakah user adalah admin
-            cur.execute("SELECT role FROM users WHERE id = %s", (current_user,))
-            user = cur.fetchone()
-            if not user or user['role'] != 'admin':
-                return jsonify({"error": "Akses ditolak. Hanya admin yang dapat mengakses."}), 403
-
-            # Ambil semua order + nama user + jumlah item
-            cur.execute("""
-                SELECT 
-                    o.id, 
-                    o.user_id, 
-                    u.name AS user_name, 
-                    o.order_date, 
-                    o.total_amount, 
-                    o.status,
-                    COUNT(oi.id) AS total_items
-                FROM orders o
-                JOIN users u ON o.user_id = u.id
-                LEFT JOIN order_items oi ON o.id = oi.order_id
-                GROUP BY o.id, u.name
-                ORDER BY o.order_date DESC
-            """)
-            orders = cur.fetchall()
-
-    return jsonify(orders)
-

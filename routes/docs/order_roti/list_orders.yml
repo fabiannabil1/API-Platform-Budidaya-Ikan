@@ -1,0 +1,35 @@
+---
+tags:
+  - Order Roti
+summary: Get list of all order roti
+security:
+  - Bearer: []
+responses:
+  200:
+    description: List of all order roti
+    schema:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          nama_pemesan:
+            type: string
+          id_product:
+            type: integer
+          product_name:
+            type: string
+          product_price:
+            type: number
+          koordinat_pemesan_lat:
+            type: number
+          koordinat_pemesan_lng:
+            type: number
+          total_harga:
+            type: number
+          created_at:
+            type: string
+            format: date-time
+  401:
+    description: Unauthorized access

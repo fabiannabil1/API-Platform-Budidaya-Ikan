@@ -1,0 +1,60 @@
+---
+tags:
+  - Order Roti
+summary: Create new order roti
+parameters:
+  - name: body
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - nama_pemesan
+        - id_product
+        - total_harga
+      properties:
+        nama_pemesan:
+          type: string
+          description: Nama pemesan roti
+        id_product:
+          type: integer
+          description: ID produk roti yang dipesan
+        koordinat_pemesan_lat:
+          type: number
+          format: float
+          description: Latitude koordinat pemesan (optional)
+        koordinat_pemesan_lng:
+          type: number
+          format: float
+          description: Longitude koordinat pemesan (optional)
+        total_harga:
+          type: number
+          format: float
+          description: Total harga pesanan
+responses:
+  201:
+    description: Order roti created successfully
+    schema:
+      type: object
+      properties:
+        id:
+          type: integer
+        nama_pemesan:
+          type: string
+        id_product:
+          type: integer
+        koordinat_pemesan_lat:
+          type: number
+        koordinat_pemesan_lng:
+          type: number
+        total_harga:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+  400:
+    description: Bad request - Missing required fields or invalid data
+  404:
+    description: Product not found
+  401:
+    description: Unauthorized access
