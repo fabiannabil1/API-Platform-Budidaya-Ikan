@@ -26,7 +26,7 @@ def list_auctions():
                 SELECT a.*, l.name as location_name
                 FROM auctions a
                 LEFT JOIN locations l ON a.location_id = l.id
-                WHERE a.user_id != %s and a.is_deleted is null
+                WHERE a.user_id != %s and a.is_deleted is null and a.status = 'open'
                 ORDER BY a.created_at DESC
             """, (user_id,))
             auctions = cur.fetchall()

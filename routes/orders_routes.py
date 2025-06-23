@@ -11,6 +11,7 @@ orders_bp = Blueprint('orders', __name__)
 @swag_from('docs/orders/list_orders.yml')
 def get_my_orders():
     current_user = get_jwt_identity()
+    print(f"Current user ID: {current_user}")
 
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
